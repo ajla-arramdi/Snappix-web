@@ -15,7 +15,10 @@ class UserController extends Controller
 
     public function profile()
     {
-        $user = auth()->user();
+        $user = auth()->user()->load(['postFotos' => function($query) {
+            $query->latest();
+        }, 'albums.postFotos']);
+        
         return view('user.profile', compact('user'));
     }
 

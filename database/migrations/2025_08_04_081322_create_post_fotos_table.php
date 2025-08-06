@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('post_fotos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('album_id')->nullable()->constrained()->onDelete('set null');
             $table->string('caption');
             $table->string('image')->nullable();
             $table->boolean('is_banned')->default(false);
@@ -32,4 +33,5 @@ return new class extends Migration
         Schema::dropIfExists('post_fotos');
     }
 };
+
 

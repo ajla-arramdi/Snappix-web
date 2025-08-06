@@ -34,24 +34,17 @@ class User extends Authenticatable
         'is_banned' => 'boolean',
     ];
 
-    public function albums()
-    {
-        return $this->hasMany(Album::class);
-    }
-
     public function postFotos()
     {
         return $this->hasMany(PostFoto::class);
     }
 
-    public function komentarFotos()
+    public function albums()
     {
-        return $this->hasMany(KomentarFoto::class);
-    }
-
-    public function likeFotos()
-    {
-        return $this->hasMany(LikeFoto::class);
+        return $this->hasMany(Album::class);
     }
 }
+
+
+
 

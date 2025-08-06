@@ -28,8 +28,20 @@ class KomentarFoto extends Model
     {
         return $this->belongsTo(User::class, 'banned_by');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function postFoto()
+    {
+        return $this->belongsTo(PostFoto::class);
+    }
+
+    public function reportComments()
+    {
+        return $this->hasMany(ReportComment::class);
+    }
 }
-
-
-
 

@@ -3,6 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\User\PostController as UserPostController;
+use App\Http\Controllers\User\AlbumController;
+use App\Http\Controllers\LikeFotoController;
+use App\Http\Controllers\KomentarFotoController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,22 +71,16 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // User routes
-    Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('user.dashboard');
-        })->name('dashboard');
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\User\UserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [App\Http\Controllers\User\UserController::class, 'profile'])->name('profile');
+        Route::post('/profile/update', [App\Http\Controllers\User\UserController::class, 'updateProfile'])->name('profile.update');
         
-        Route::get('/profile', function () {
-            return view('user.profile');
-        })->name('profile');
+        // Album routes
+        Route::resource('albums', App\Http\Controllers\User\AlbumController::class);
         
-        Route::get('/photos', function () {
-            return view('user.photos.index');
-        })->name('photos');
-        
-        Route::get('/albums', function () {
-            return view('user.albums.index');
-        })->name('albums');
+        // Post routes
+        Route::resource('posts', App\Http\Controllers\User\PostController::class);
     });
 
     // Shared routes
@@ -87,6 +88,31 @@ Route::middleware(['auth'])->group(function () {
         return view('explore');
     })->name('explore');
 });
+
+Route::middleware(['auth', 'check.banned'])->group(function () {
+    // ... existing routes ...
+    
+    // Like foto routes
+    Route::post('/post-fotos/{postFoto}/like', [LikeFotoController::class, 'toggle'])->name('post-fotos.like');
+    
+    // Komentar foto routes
+    Route::post('/post-fotos/{postFoto}/komentar', [KomentarFotoController::class, 'store'])->name('komentar-fotos.store');
+    Route::delete('/komentar-fotos/{komentarFoto}', [KomentarFotoController::class, 'destroy'])->name('komentar-fotos.destroy');
+    
+    // Report routes
+    Route::post('/post-fotos/{postFoto}/report', [ReportController::class, 'reportPost'])->name('posts.report');
+    Route::post('/komentar-fotos/{komentarFoto}/report', [ReportController::class, 'reportComment'])->name('comments.report');
+    Route::post('/users/{user}/report', [ReportController::class, 'reportUser'])->name('users.report');
+});
+
+
+
+
+
+
+
+
+
 
 
 
