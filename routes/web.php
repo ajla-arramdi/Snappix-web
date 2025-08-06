@@ -3,10 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\User\PostController as UserPostController;
-use App\Http\Controllers\User\AlbumController;
 use App\Http\Controllers\LikeFotoController;
 use App\Http\Controllers\KomentarFotoController;
 use App\Http\Controllers\ReportController;
