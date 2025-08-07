@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class KomentarFoto extends Model
 {
     use HasFactory;
+
+    protected $table = 'komentar_fotos';
 
     protected $fillable = [
         'user_id',
@@ -16,18 +19,13 @@ class KomentarFoto extends Model
         'is_banned',
         'banned_at',
         'banned_by',
-        'ban_reason',
+        'ban_reason'
     ];
 
     protected $casts = [
         'is_banned' => 'boolean',
         'banned_at' => 'datetime',
     ];
-
-    public function bannedBy()
-    {
-        return $this->belongsTo(User::class, 'banned_by');
-    }
 
     public function user()
     {
@@ -36,12 +34,18 @@ class KomentarFoto extends Model
 
     public function postFoto()
     {
-        return $this->belongsTo(PostFoto::class);
+        return $this->belongsTo(PostFoto::class, 'post_foto_id');
     }
+
+    // public function notifications()
+    // {
+    //     return $this->hasMany(Notification::class, 'komentar_foto_id');
+    // }
 
     public function reportComments()
     {
-        return $this->hasMany(ReportComment::class);
+        return $this->hasMany(ReportComment::class, 'komentar_foto_id');
     }
 }
+
 

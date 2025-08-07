@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\PostFoto;
+use App\Http\Controllers\Controller;
 use App\Models\KomentarFoto;
+use App\Models\PostFoto;
 use Illuminate\Http\Request;
 
 class KomentarFotoController extends Controller

@@ -5,14 +5,30 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\PostFoto;
-use App\Models\KomentarFoto;
+use App\Models\ReportPost;
+use App\Models\ReportComment;
+use App\Models\ReportUser;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $totalUsers = User::count();
+        $totalAdmins = User::role('admin')->count();
+        $totalBannedUsers = User::where('is_banned', true)->count();
+        $totalPosts = \App\Models\PostFoto::count();
+        $totalComments = \App\Models\KomentarFoto::count();
+        $totalReports = \App\Models\ReportPost::count();
+        
+        return view('admin.dashboard', compact(
+            'totalUsers', 
+            'totalAdmins', 
+            'totalBannedUsers',
+            'totalPosts',
+            'totalComments',
+            'totalReports'
+        ));
     }
 
     public function users()
@@ -88,8 +104,90 @@ class AdminController extends Controller
 
     public function reports()
     {
-        // Untuk sementara return view kosong, nanti akan kita isi
-        return view('admin.reports');
+        $reportPosts = ReportPost::with(['user', 'postFoto.user', 'admin'])
+                                ->orderBy('created_at', 'desc')
+                                ->paginate(10);
+        
+        $reportComments = ReportComment::with(['user', 'komentarFoto.user', 'admin'])
+                                     ->orderBy('created_at', 'desc')
+                                     ->paginate(10);
+        
+        $reportUsers = ReportUser::with(['reporter', 'reportedUser', 'admin'])
+                                ->orderBy('created_at', 'desc')
+                                ->paginate(10);
+        
+        return view('admin.reports', compact('reportPosts', 'reportComments', 'reportUsers'));
+    }
+
+    public function reviewPostReport($id, $action)
+    {
+        try {
+            $report = ReportPost::findOrFail($id);
+            
+            if (!in_array($action, ['approve', 'reject'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Action tidak valid'
+                ], 400);
+            }
+
+            $status = $action === 'approve' ? 'approved' : 'rejected';
+            $adminNotes = request('admin_notes', $action === 'approve' ? 'Disetujui oleh admin' : 'Ditolak oleh admin');
+
+            $report->update([
+                'status' => $status,
+                'admin_id' => auth()->id(),
+                'admin_notes' => $adminNotes,
+                'reviewed_at' => now()
+            ]);
+
+            // If approved, take action on the reported post
+            if ($action === 'approve' && $report->postFoto) {
+                $report->postFoto->update([
+                    'is_banned' => true,
+                    'banned_at' => now(),
+                    'banned_by' => auth()->id(),
+                    'ban_reason' => 'Post dilaporkan: ' . $report->alasan
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $action === 'approve' ? 'Laporan disetujui dan post telah dibanned' : 'Laporan ditolak'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function reviewCommentReport($id, $action)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Fitur review komentar akan segera tersedia'
+        ]);
+    }
+
+    public function reviewUserReport($id, $action)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Fitur review user akan segera tersedia'
+        ]);
+    }
+
+    private function getReportModel($type)
+    {
+        return match($type) {
+            'post' => \App\Models\ReportPost::class,
+            'comment' => \App\Models\ReportComment::class,
+            'user' => \App\Models\ReportUser::class,
+            default => throw new \InvalidArgumentException('Invalid report type')
+        };
     }
 
     public function banUser(User $user)
@@ -146,6 +244,13 @@ class AdminController extends Controller
         return back()->with('success', 'Role admin berhasil dihapus');
     }
 }
+
+
+
+
+
+
+
 
 
 

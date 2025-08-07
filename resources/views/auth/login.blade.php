@@ -9,6 +9,18 @@
     <div class="min-h-screen bg-gray-100 flex items-center justify-center">
         <div class="bg-white p-8 rounded shadow-md w-96">
             <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+            @if(session('error'))
+                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('banned'))
+                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <i class="fas fa-ban mr-2"></i>
+                    Akun Anda telah dibanned dan tidak dapat mengakses sistem.
+                </div>
+            @endif
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mb-4">
@@ -28,4 +40,5 @@
     </div>
 </body>
 </html>
+
 

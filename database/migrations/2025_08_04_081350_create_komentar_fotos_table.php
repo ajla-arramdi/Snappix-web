@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('post_foto_id')->constrained()->onDelete('cascade');
-            $table->string('komentar');
+            $table->text('isi_komentar'); 
             $table->boolean('is_banned')->default(false);
             $table->timestamp('banned_at')->nullable();
             $table->foreignId('banned_by')->nullable()->constrained('users')->onDelete('set null');
@@ -26,3 +26,4 @@ return new class extends Migration
         Schema::dropIfExists('komentar_fotos');
     }
 };
+

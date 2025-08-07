@@ -98,7 +98,15 @@ class PostController extends Controller
         $post->update($data);
         return redirect()->route('user.posts.index')->with('success', 'Postingan berhasil diupdate');
     }
+
+    public function show(PostFoto $post)
+    {
+        $post->load(['user', 'komentarFotos.user', 'likeFotos.user']);
+        
+        return view('user.posts.show', compact('post'));
+    }
 }
+
 
 
 

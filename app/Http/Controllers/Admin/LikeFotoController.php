@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\LikeFoto;
 use App\Models\PostFoto;
 use Illuminate\Http\Request;
 

@@ -22,13 +22,32 @@ class PostFoto extends Model
 
     public function komentarFotos()
     {
-        return $this->hasMany(KomentarFoto::class);
+        return $this->hasMany(KomentarFoto::class, 'post_foto_id');
     }
 
     public function likeFotos()
     {
         return $this->hasMany(LikeFoto::class);
     }
+
+    public function isLikedBy($user)
+    {
+        if (!$user) return false;
+        return $this->likeFotos()->where('user_id', $user->id)->exists();
+    }
+
+    public function getLikesCountAttribute()
+    {
+        return $this->likeFotos()->count();
+    }
+
+    public function getCommentsCountAttribute()
+    {
+        return $this->komentarFotos()->where('is_banned', false)->count();
+    }
 }
+
+
+
 
 

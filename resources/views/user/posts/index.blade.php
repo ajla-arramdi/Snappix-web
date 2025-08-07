@@ -1,117 +1,136 @@
 @extends('layouts.app')
 
+@section('title', 'My Posts')
+
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Postingan Saya</h1>
-        <a href="{{ route('user.posts.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-            Buat Postingan Baru
-        </a>
-    </div>
-
-    @if($posts->count() > 0)
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach($posts as $post)
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <!-- Post Image -->
-            <div class="relative">
-                <img src="{{ asset('storage/' . $post->image) }}" 
-                     alt="{{ $post->caption }}" 
-                     class="w-full h-64 object-cover">
-                
-                <!-- Post Actions Overlay -->
-                <div class="absolute top-2 right-2">
-                    <div class="relative">
-                        <button type="button" onclick="toggleDropdown({{ $post->id }})" 
-                                class="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                            </svg>
-                        </button>
-                        <div id="dropdown-{{ $post->id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                            <a href="{{ route('user.posts.edit', $post) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Edit Postingan
-                            </a>
-                            <form method="POST" action="{{ route('user.posts.destroy', $post) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        onclick="return confirm('Yakin ingin hapus postingan ini?')"
-                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    Hapus Postingan
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">My Posts</h1>
+                    <p class="text-gray-600 mt-1">Manage your shared moments</p>
                 </div>
-            </div>
-            
-            <!-- Post Content -->
-            <div class="p-4">
-                <p class="text-sm text-gray-600 mb-2">{{ Str::limit($post->caption, 50) }}</p>
-                
-                <div class="flex justify-between text-sm text-gray-500">
-                    <span>{{ $post->likeFotos->count() }} likes</span>
-                    <span>{{ $post->komentarFotos->count() }} komentar</span>
-                </div>
-                
-                <div class="mt-2 text-xs text-gray-400">
-                    {{ $post->created_at->diffForHumans() }}
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-
-    <div class="mt-6">
-        {{ $posts->links() }}
-    </div>
-    @else
-    <div class="text-center py-12">
-        <div class="max-w-md mx-auto">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada postingan</h3>
-            <p class="mt-1 text-sm text-gray-500">Mulai berbagi foto dengan membuat postingan pertama Anda.</p>
-            <div class="mt-6">
                 <a href="{{ route('user.posts.create') }}" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                    <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                    Buat Postingan Pertama
+                   class="flex items-center bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>New Post
                 </a>
             </div>
         </div>
     </div>
-    @endif
+
+    <!-- Content -->
+    <div class="container mx-auto px-4 py-8">
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-xl mb-6 flex items-center">
+                <i class="fas fa-check-circle mr-3"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if($posts->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                @foreach($posts as $post)
+                <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <!-- Post Image -->
+                    <div class="relative aspect-square overflow-hidden">
+                        <img src="{{ asset('storage/' . $post->image) }}" 
+                             alt="{{ $post->caption }}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        
+                        <!-- Overlay -->
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300">
+                            <!-- Stats -->
+                            <div class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex space-x-3 text-white">
+                                    <div class="flex items-center space-x-1">
+                                        <i class="fas fa-heart"></i>
+                                        <span class="text-sm font-medium">{{ $post->likeFotos->count() }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <i class="fas fa-comment"></i>
+                                        <span class="text-sm font-medium">{{ $post->komentarFotos->count() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('posts.show', $post) }}" 
+                                       class="bg-white/90 hover:bg-white text-gray-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
+                                    <a href="{{ route('user.posts.edit', $post) }}" 
+                                       class="bg-blue-500/90 hover:bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </a>
+                                    <form method="POST" action="{{ route('user.posts.destroy', $post) }}" class="inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" 
+                                                onclick="return confirm('Delete this post?')"
+                                                class="bg-red-500/90 hover:bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Post Info -->
+                    <div class="p-4">
+                        @if($post->caption)
+                            <p class="text-gray-900 text-sm mb-3 line-clamp-2">{{ $post->caption }}</p>
+                        @endif
+                        
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>
+                                <i class="fas fa-calendar mr-1"></i>
+                                {{ $post->created_at->format('M d, Y') }}
+                            </span>
+                            @if($post->album)
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                    {{ $post->album->nama_album }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            
+            <!-- Pagination -->
+            <div class="mt-8">
+                {{ $posts->links() }}
+            </div>
+        @else
+            <!-- Empty State -->
+            <div class="text-center py-20">
+                <div class="w-32 h-32 bg-gradient-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <i class="fas fa-camera text-white text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No posts yet</h3>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                    Share your first photo and start building your gallery
+                </p>
+                <a href="{{ route('user.posts.create') }}" 
+                   class="inline-flex items-center bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>Create Your First Post
+                </a>
+            </div>
+        @endif
+    </div>
 </div>
 
-<script>
-function toggleDropdown(postId) {
-    // Close all other dropdowns
-    document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
-        if (dropdown.id !== `dropdown-${postId}`) {
-            dropdown.classList.add('hidden');
-        }
-    });
-    
-    // Toggle current dropdown
-    const dropdown = document.getElementById(`dropdown-${postId}`);
-    dropdown.classList.toggle('hidden');
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.relative')) {
-        document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
-            dropdown.classList.add('hidden');
-        });
-    }
-});
-</script>
+</style>
 @endsection
-
-
 

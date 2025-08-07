@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -23,7 +24,10 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->intended('/home');
+            if (auth()->user()->hasRole('admin')) {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('user.dashboard');
         }
 
         return back()->withErrors(['email' => 'Email atau password salah']);
@@ -76,5 +80,4 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 }
-
 
