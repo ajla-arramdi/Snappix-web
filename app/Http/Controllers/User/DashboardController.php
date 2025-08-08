@@ -10,18 +10,21 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentPosts = PostFoto::with(['user', 'likeFotos', 'komentarFotos'])
-                              ->where('is_banned', false)
-                              ->whereHas('user', function($query) {
-                                  $query->where('is_banned', false);
-                              })
-                              ->latest()
-                              ->take(20)
-                              ->get();
+        $allPosts = PostFoto::all();
         
-        return view('user.dashboard', compact('recentPosts'));
+        $posts = PostFoto::where('is_banned', false)->whereHas('user', function($query) {
+                    $query->where('is_banned', false);
+                })->with(['user', 'komentarFotos' => function($query) {
+                    $query->where('is_banned', false)->with('user');
+                }, 'likeFotos.user'])
+                ->latest()
+                ->paginate(12);
+
+        return view('user.dashboard', compact('posts'));
     }
 }
+
+
 
 
 

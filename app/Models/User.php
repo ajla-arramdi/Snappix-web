@@ -55,15 +55,6 @@ class User extends Authenticatable
         return $this->hasMany(LikeFoto::class);
     }
 
-    // public function notifications()
-    // {
-    //     return $this->hasMany(Notification::class);
-    // }
-
-    // public function sentNotifications()
-    // {
-    //     return $this->hasMany(Notification::class, 'from_user_id');
-    // }
 
     public function reportPosts()
     {

@@ -39,10 +39,6 @@
                            class="px-4 py-2 rounded-full font-medium {{ request()->routeIs('explore') ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
                             Explore
                         </a>
-                        <a href="{{ route('user.posts.create') }}" 
-                           class="px-4 py-2 rounded-full font-medium text-gray-700 hover:bg-gray-100">
-                            Create
-                        </a>
                     </div>
                 </div>
                 

@@ -22,8 +22,8 @@ class ReportController extends Controller
 
         // Cek apakah user sudah pernah report post ini
         $existingReport = ReportPost::where('user_id', auth()->id())
-                                   ->where('post_foto_id', $postFoto->id)
-                                   ->first();
+            ->where('post_foto_id', $postFoto->id)
+            ->first();
 
         if ($existingReport) {
             return response()->json([
@@ -54,8 +54,8 @@ class ReportController extends Controller
 
         // Cek apakah user sudah pernah report comment ini
         $existingReport = ReportComment::where('user_id', auth()->id())
-                                      ->where('komentar_foto_id', $komentarFoto->id)
-                                      ->first();
+            ->where('komentar_foto_id', $komentarFoto->id)
+            ->first();
 
         if ($existingReport) {
             return response()->json([
@@ -93,8 +93,8 @@ class ReportController extends Controller
 
         // Cek apakah user sudah pernah report user ini
         $existingReport = ReportUser::where('reporter_id', auth()->id())
-                                   ->where('reported_user_id', $user->id)
-                                   ->first();
+            ->where('reported_user_id', $user->id)
+            ->first();
 
         if ($existingReport) {
             return response()->json([
@@ -119,17 +119,14 @@ class ReportController extends Controller
     public function index()
     {
         $reportPosts = ReportPost::with(['user', 'postFoto.user', 'admin'])
-                                ->orderBy('created_at', 'desc')
-                                ->paginate(10);
-        
+            ->orderBy('created_at', 'desc')->paginate(10);
+
         $reportComments = ReportComment::with(['user', 'komentarFoto.user', 'admin'])
-                                     ->orderBy('created_at', 'desc')
-                                     ->paginate(10);
-        
+            ->orderBy('created_at', 'desc')->paginate(10);
+
         $reportUsers = ReportUser::with(['reporter', 'reportedUser', 'admin'])
-                                ->orderBy('created_at', 'desc')
-                                ->paginate(10);
-        
+            ->orderBy('created_at', 'desc')->paginate(10);
+
         return view('admin.reports', compact('reportPosts', 'reportComments', 'reportUsers'));
     }
 
@@ -141,7 +138,7 @@ class ReportController extends Controller
 
         $model = $this->getReportModel($type);
         $report = $model::findOrFail($id);
-        
+
         $report->update([
             'status' => 'approved',
             'admin_id' => auth()->id(),
@@ -160,7 +157,7 @@ class ReportController extends Controller
 
         $model = $this->getReportModel($type);
         $report = $model::findOrFail($id);
-        
+
         $report->update([
             'status' => 'rejected',
             'admin_id' => auth()->id(),
@@ -173,7 +170,7 @@ class ReportController extends Controller
 
     private function getReportModel($type)
     {
-        return match($type) {
+        return match ($type) {
             'post' => ReportPost::class,
             'comment' => ReportComment::class,
             'user' => ReportUser::class,
@@ -181,5 +178,3 @@ class ReportController extends Controller
         };
     }
 }
-
-

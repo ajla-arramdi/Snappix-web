@@ -45,9 +45,12 @@ class PostFoto extends Model
     {
         return $this->komentarFotos()->where('is_banned', false)->count();
     }
+
+    public function scopeNotBanned($query)
+    {
+        return $query->where('is_banned', false);
+    }
 }
-
-
 
 
 

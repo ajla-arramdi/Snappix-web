@@ -46,25 +46,33 @@ Route::middleware(['auth'])->group(function () {
 
     // Admin routes
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'users'])->name('users');
-        Route::get('/posts', [App\Http\Controllers\Admin\AdminController::class, 'posts'])->name('posts');
-        Route::get('/reports', [App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('reports');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::get('/users/{user}', [UserController::class, 'show'])->name('user-detail');
+        Route::get('/posts', [AdminController::class, 'posts'])->name('posts');
+        Route::get('/posts/{id}', [AdminController::class, 'postDetail'])->name('post-detail');
+        Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
         
-        // Report review routes
-        Route::post('/reports/post/{id}/{action}', [App\Http\Controllers\Admin\AdminController::class, 'reviewPostReport'])->name('review-post-report');
-        Route::post('/reports/comment/{id}/{action}', [App\Http\Controllers\Admin\AdminController::class, 'reviewCommentReport'])->name('review-comment-report');
-        Route::post('/reports/user/{id}/{action}', [App\Http\Controllers\Admin\AdminController::class, 'reviewUserReport'])->name('review-user-report');
-        
-        // User management
-        Route::post('/users/{user}/ban', [App\Http\Controllers\Admin\AdminController::class, 'banUser'])->name('ban-user');
-        Route::post('/users/{user}/unban', [App\Http\Controllers\Admin\AdminController::class, 'unbanUser'])->name('unban-user');
-        Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'deleteUser'])->name('delete-user');
+        // User management routes
+        Route::post('/users/{user}/ban', [UserController::class, 'ban'])->name('ban-user');
+        Route::post('/users/{user}/unban', [UserController::class, 'unban'])->name('unban-user');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('delete-user');
+        Route::post('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('make-admin');
+        Route::post('/users/{user}/remove-admin', [UserController::class, 'removeAdmin'])->name('remove-admin');
         
         // Post management
-        Route::post('/posts/{post}/ban', [App\Http\Controllers\Admin\AdminController::class, 'banPost'])->name('ban-post');
-        Route::post('/posts/{post}/unban', [App\Http\Controllers\Admin\AdminController::class, 'unbanPost'])->name('unban-post');
-        Route::delete('/posts/{post}', [App\Http\Controllers\Admin\AdminController::class, 'deletePost'])->name('delete-post');
+        Route::post('/posts/{post}/ban', [AdminController::class, 'banPost'])->name('ban-post');
+        Route::post('/posts/{post}/unban', [AdminController::class, 'unbanPost'])->name('unban-post');
+        Route::delete('/posts/{post}', [AdminController::class, 'deletePost'])->name('delete-post');
+        
+        // Comment management
+        Route::post('/comments/{comment}/ban', [AdminController::class, 'banComment'])->name('ban-comment');
+        Route::delete('/comments/{comment}', [AdminController::class, 'deleteComment'])->name('delete-comment');
+        
+        // Report management
+        Route::post('/reports/post/{id}/{action}', [AdminController::class, 'reviewPostReport'])->name('review-post-report');
+        Route::post('/reports/comment/{id}/{action}', [AdminController::class, 'reviewCommentReport'])->name('review-comment-report');
+        Route::post('/reports/user/{id}/{action}', [AdminController::class, 'reviewUserReport'])->name('review-user-report');
     });
 });
 
@@ -116,10 +124,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/reports/comment/{id}/{action}', [App\Http\Controllers\Admin\AdminController::class, 'reviewCommentReport']);
     Route::post('/reports/user/{id}/{action}', [App\Http\Controllers\Admin\AdminController::class, 'reviewUserReport']);
 });
-
-
-
-
 
 
 

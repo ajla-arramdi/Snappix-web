@@ -1,270 +1,247 @@
 @extends('layouts.admin')
 
-@section('title', 'Pengelola User')
+@section('title', 'Kelola User')
 @section('page-title', 'Pengelola User')
+@section('page-description', 'Kelola Sistem Snappix')
 
 @section('content')
-<div class="bg-white rounded-lg shadow">
-    <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Daftar User</h3>
-            <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-500">Total: {{ $users->total() }} users</span>
-                <div class="flex items-center space-x-2">
-                    <select class="text-sm border-gray-300 rounded-md" onchange="filterUsers(this.value)">
-                        <option value="all">Semua User</option>
-                        <option value="admin">Admin</option>
-                        <option value="user">User Biasa</option>
-                        <option value="banned">User Banned</option>
-                    </select>
-                </div>
+<div style="padding: 32px; background: #f8fafc; min-height: 100vh;">
+    <!-- Header Section -->
+    <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h2 style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0;">Daftar User</h2>
+                <p style="color: #64748b; margin: 0;">Total: {{ $users->total() }} users terdaftar</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <select style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-size: 14px;">
+                    <option value="all">Semua User</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User Biasa</option>
+                    <option value="banned">User Banned</option>
+                </select>
+                <button style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer;">
+                    <i class="fas fa-filter" style="margin-right: 8px;"></i>Filter
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="flex items-center">
-                            <i class="fas fa-user mr-2"></i>
-                            User Info
-                        </div>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="flex items-center">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            Role
-                        </div>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="flex items-center">
-                            <i class="fas fa-calendar mr-2"></i>
-                            Bergabung
-                        </div>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            Status
-                        </div>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="flex items-center">
-                            <i class="fas fa-cogs mr-2"></i>
-                            Actions
-                        </div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($users as $user)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                                    <span class="text-white font-medium text-sm">
-                                        {{ strtoupper(substr($user->name, 0, 2)) }}
+    <!-- Users Table -->
+    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden;">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #374151; font-size: 14px;">
+                            <i class="fas fa-user" style="margin-right: 8px; color: #6b7280;"></i>User Info
+                        </th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #374151; font-size: 14px;">
+                            <i class="fas fa-crown" style="margin-right: 8px; color: #6b7280;"></i>Role
+                        </th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #374151; font-size: 14px;">
+                            <i class="fas fa-calendar" style="margin-right: 8px; color: #6b7280;"></i>Bergabung
+                        </th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #374151; font-size: 14px;">
+                            <i class="fas fa-info-circle" style="margin-right: 8px; color: #6b7280;"></i>Status
+                        </th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: #374151; font-size: 14px;">
+                            <i class="fas fa-cogs" style="margin-right: 8px; color: #6b7280;"></i>Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($users as $user)
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s ease;" 
+                        onmouseover="this.style.background='#f8fafc';" 
+                        onmouseout="this.style.background='white';">
+                        <!-- User Info -->
+                        <td style="padding: 20px 24px;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);">
+                                    <span style="color: white; font-weight: 700; font-size: 16px;">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </span>
                                 </div>
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $user->email }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @if($user->hasRole('admin'))
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i class="fas fa-crown mr-1"></i>
-                                Admin
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-user mr-1"></i>
-                                User
-                            </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div class="flex items-center">
-                            <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
-                            {{ $user->created_at->format('d M Y') }}
-                        </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $user->created_at->diffForHumans() }}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @if($user->is_banned)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                <i class="fas fa-ban mr-1"></i>
-                                Banned
-                            </span>
-                            @if($user->banned_at)
-                                <div class="text-xs text-gray-400 mt-1">
-                                    {{ $user->banned_at->format('d M Y') }}
+                                <div>
+                                    <h4 style="font-weight: 600; color: #1e293b; margin: 0 0 4px 0; font-size: 16px;">{{ $user->name }}</h4>
+                                    <p style="color: #64748b; margin: 0; font-size: 14px;">{{ $user->email }}</p>
                                 </div>
-                            @endif
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Active
-                            </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        @if($user->id !== auth()->id())
-                            <div class="flex items-center space-x-2">
-                                <!-- Ban/Unban Button -->
-                                @if($user->is_banned)
-                                    <form method="POST" action="{{ route('admin.unban-user', $user) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-                                            <i class="fas fa-unlock mr-1"></i>
-                                            Unban
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('admin.ban-user', $user) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition"
-                                                onclick="return confirm('Yakin ingin ban user ini?')">
-                                            <i class="fas fa-ban mr-1"></i>
-                                            Ban
-                                        </button>
-                                    </form>
-                                @endif
-
-                                <!-- Role Management -->
-                                @if($user->hasRole('admin'))
-                                    <form method="POST" action="{{ route('admin.remove-admin', $user) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition"
-                                                onclick="return confirm('Yakin ingin hapus role admin?')">
-                                            <i class="fas fa-user-minus mr-1"></i>
-                                            Remove Admin
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('admin.make-admin', $user) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition"
-                                                onclick="return confirm('Yakin ingin jadikan admin?')">
-                                            <i class="fas fa-user-plus mr-1"></i>
-                                            Make Admin
-                                        </button>
-                                    </form>
-                                @endif
-
-                                <!-- Delete Button -->
-                                <form method="POST" action="{{ route('admin.delete-user', $user) }}" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
-                                            onclick="return confirm('Yakin ingin hapus user ini? Tindakan ini tidak dapat dibatalkan!')">
-                                        <i class="fas fa-trash mr-1"></i>
-                                        Delete
-                                    </button>
-                                </form>
                             </div>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                <i class="fas fa-user-circle mr-1"></i>
-                                Current User
-                            </span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center">
-                            <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada user</h3>
-                            <p class="text-gray-500">Belum ada user yang terdaftar di sistem.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </td>
+
+                        <!-- Role -->
+                        <td style="padding: 20px 24px;">
+                            @if($user->hasRole('admin'))
+                                <span style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;">
+                                    <i class="fas fa-crown" style="margin-right: 4px;"></i>Admin
+                                </span>
+                            @else
+                                <span style="background: #e2e8f0; color: #64748b; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;">
+                                    <i class="fas fa-user" style="margin-right: 4px;"></i>User
+                                </span>
+                            @endif
+                        </td>
+
+                        <!-- Join Date -->
+                        <td style="padding: 20px 24px;">
+                            <div style="color: #374151; font-size: 14px; font-weight: 500;">{{ $user->created_at->format('d M Y') }}</div>
+                            <div style="color: #9ca3af; font-size: 12px;">{{ $user->created_at->diffForHumans() }}</div>
+                        </td>
+
+                        <!-- Status -->
+                        <td style="padding: 20px 24px;">
+                            @if($user->is_banned)
+                                <span style="background: #fef2f2; color: #dc2626; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;">
+                                    <i class="fas fa-ban" style="margin-right: 4px;"></i>Banned
+                                </span>
+                            @else
+                                <span style="background: #dcfce7; color: #16a34a; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;">
+                                    <i class="fas fa-check-circle" style="margin-right: 4px;"></i>Active
+                                </span>
+                            @endif
+                        </td>
+
+                        <!-- Actions -->
+                        <td style="padding: 20px 24px;">
+                            @if($user->id !== auth()->id())
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <!-- Ban/Unban Button -->
+                                    @if($user->is_banned)
+                                        <form method="POST" action="{{ route('admin.unban-user', $user) }}" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" 
+                                                    style="background: #16a34a; color: white; padding: 6px 12px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                                    onmouseover="this.style.background='#15803d';"
+                                                    onmouseout="this.style.background='#16a34a';">
+                                                <i class="fas fa-unlock" style="margin-right: 4px;"></i>Unban
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('admin.ban-user', $user) }}" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" 
+                                                    style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                                    onmouseover="this.style.background='#b91c1c';"
+                                                    onmouseout="this.style.background='#dc2626';"
+                                                    onclick="return confirm('Yakin ingin ban user ini?')">
+                                                <i class="fas fa-ban" style="margin-right: 4px;"></i>Ban
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <!-- Role Management -->
+                                    @if($user->hasRole('admin'))
+                                        <form method="POST" action="{{ route('admin.remove-admin', $user) }}" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" 
+                                                    style="background: #f59e0b; color: white; padding: 6px 12px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                                    onmouseover="this.style.background='#d97706';"
+                                                    onmouseout="this.style.background='#f59e0b';"
+                                                    onclick="return confirm('Yakin ingin hapus role admin?')">
+                                                <i class="fas fa-user-minus" style="margin-right: 4px;"></i>Remove Admin
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('admin.make-admin', $user) }}" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" 
+                                                    style="background: #8b5cf6; color: white; padding: 6px 12px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                                    onmouseover="this.style.background='#7c3aed';"
+                                                    onmouseout="this.style.background='#8b5cf6';"
+                                                    onclick="return confirm('Yakin ingin jadikan admin?')">
+                                                <i class="fas fa-crown" style="margin-right: 4px;"></i>Make Admin
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <!-- View Detail -->
+                                    <a href="{{ route('admin.user-detail', $user) }}" 
+                                       style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center;"
+                                       onmouseover="this.style.background='#2563eb';"
+                                       onmouseout="this.style.background='#3b82f6';">
+                                        <i class="fas fa-eye" style="margin-right: 4px;"></i>Detail
+                                    </a>
+                                </div>
+                            @else
+                                <span style="color: #9ca3af; font-size: 12px; font-style: italic;">Current User</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="padding: 48px; text-align: center;">
+                            <div style="color: #9ca3af;">
+                                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                                <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0;">Belum ada user</h3>
+                                <p style="margin: 0;">User yang terdaftar akan muncul di sini</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pagination -->
     @if($users->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200">
+        <div style="margin-top: 24px; display: flex; justify-content: center;">
             {{ $users->links() }}
         </div>
     @endif
+
+    <!-- Statistics Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 32px;">
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #3b82f6;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-users" style="color: #3b82f6; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Total Users</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $users->total() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #f59e0b;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-crown" style="color: #f59e0b; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Admin Users</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $users->filter(fn($u) => $u->hasRole('admin'))->count() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #16a34a;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-check-circle" style="color: #16a34a; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Active Users</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $users->filter(fn($u) => !$u->is_banned)->count() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #dc2626;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-ban" style="color: #dc2626; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Banned Users</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $users->filter(fn($u) => $u->is_banned)->count() }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                <i class="fas fa-users text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Total Users</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $users->total() }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                <i class="fas fa-crown text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Admin Users</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $users->filter(fn($u) => $u->hasRole('admin'))->count() }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                <i class="fas fa-check-circle text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Active Users</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $users->filter(fn($u) => !$u->is_banned)->count() }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                <i class="fas fa-ban text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Banned Users</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $users->filter(fn($u) => $u->is_banned)->count() }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function filterUsers(filter) {
-    // Implementasi filter nanti jika diperlukan
-    console.log('Filter:', filter);
-}
-</script>
 @endsection
+
 

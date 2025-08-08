@@ -27,27 +27,16 @@
                     </div>
                 </div>
                 
-                <!-- Quick Actions -->
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('user.posts.create') }}" 
-                       class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full font-medium transition-colors">
-                        Create
-                    </a>
-                    <a href="{{ route('explore') }}" 
-                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors">
-                        Explore
-                    </a>
-                </div>
-            </div>
+               </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-6">
-        @if(isset($recentPosts) && $recentPosts->count() > 0)
+        @if($posts->count() > 0)
             <!-- Masonry Grid Container -->
             <div class="masonry-grid" id="masonry-container">
-                @foreach($recentPosts as $post)
+                @foreach($posts as $post)
                     <div class="masonry-item">
                         <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group">
                             <!-- Image -->
@@ -74,10 +63,10 @@
                                                     <span class="text-xs font-medium">{{ $post->komentarFotos->count() }}</span>
                                                 </button>
                                             </div>
-                                            <button onclick="window.location.href='{{ route('posts.show', $post) }}'" 
-                                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">
-                                                View
-                                            </button>
+                                            <a href="{{ route('posts.show', $post) }}" 
+                                               class="bg-white/90 hover:bg-white text-gray-800 px-3 py-2 rounded-full shadow-lg transition-colors">
+                                                <i class="fas fa-eye text-sm"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -87,9 +76,7 @@
                             <div class="p-4">
                                 <!-- Caption -->
                                 @if($post->caption)
-                                    <p class="text-gray-900 text-sm leading-relaxed mb-3 line-clamp-3">
-                                        {{ $post->caption }}
-                                    </p>
+                                    <p class="text-gray-800 text-sm mb-3 line-clamp-3">{{ $post->caption }}</p>
                                 @endif
                                 
                                 <!-- User Info -->
@@ -104,7 +91,7 @@
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $post->user->name }}</p>
+                                        <a href="{{ route('user.show', $post->user) }}" class="text-sm font-medium text-gray-900 truncate hover:text-blue-600">{{ $post->user->name }}</a>
                                         <p class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</p>
                                     </div>
                                 </div>
@@ -114,12 +101,9 @@
                 @endforeach
             </div>
             
-            <!-- Load More -->
-            <div class="text-center mt-12">
-                <a href="{{ route('explore') }}" 
-                   class="inline-flex items-center bg-white text-gray-700 px-8 py-3 rounded-full hover:bg-gray-100 transition-all duration-300 border border-gray-300 font-medium shadow-sm">
-                    <i class="fas fa-compass mr-2"></i>Explore More
-                </a>
+            <!-- Pagination -->
+            <div class="mt-12">
+                {{ $posts->links() }}
             </div>
         @else
             <!-- Empty State -->
@@ -127,13 +111,13 @@
                 <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-8">
                     <i class="fas fa-images text-gray-400 text-4xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-4">No pins yet</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No posts yet</h3>
                 <p class="text-gray-600 mb-8 max-w-md mx-auto">
                     Be the first to share a photo and inspire others!
                 </p>
                 <a href="{{ route('user.posts.create') }}" 
-                   class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-medium transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Create your first Pin
+                   class="inline-flex items-center bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>Create Your First Post
                 </a>
             </div>
         @endif
@@ -184,13 +168,13 @@
 </style>
 
 <script>
+// Masonry layout
 document.addEventListener('DOMContentLoaded', function() {
-    // Calculate grid rows for masonry effect
     function resizeGridItem(item) {
-        const grid = document.querySelector('.masonry-grid');
+        const grid = document.getElementById('masonry-container');
         const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
         const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
-        const rowSpan = Math.ceil((item.querySelector('div').getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
+        const rowSpan = Math.ceil((item.querySelector('.bg-white').getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
         item.style.setProperty('--grid-rows', rowSpan);
     }
 
@@ -199,25 +183,17 @@ document.addEventListener('DOMContentLoaded', function() {
         allItems.forEach(resizeGridItem);
     }
 
-    const images = document.querySelectorAll('.masonry-item img');
-    let loadedImages = 0;
-
-    function imageLoaded() {
-        loadedImages++;
-        if (loadedImages === images.length) {
-            resizeAllGridItems();
-        }
-    }
-
-    images.forEach(img => {
-        if (img.complete) {
-            imageLoaded();
-        } else {
-            img.addEventListener('load', imageLoaded);
-        }
-    });
-
+    // Initial resize
+    setTimeout(resizeAllGridItems, 100);
+    
+    // Resize on window resize
     window.addEventListener('resize', resizeAllGridItems);
+    
+    // Resize when images load
+    const images = document.querySelectorAll('.masonry-item img');
+    images.forEach(img => {
+        img.addEventListener('load', resizeAllGridItems);
+    });
 });
 
 // Like functionality
@@ -374,6 +350,7 @@ function toggleLike(postId) {
         </form>
     </div>
 </div>
+
 
 
 

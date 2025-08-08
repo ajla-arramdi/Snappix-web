@@ -7,6 +7,7 @@ use App\Models\PostFoto;
 use App\Models\KomentarFoto;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification as NotificationsNotification;
 
 class CommentController extends Controller
 {
@@ -63,7 +64,7 @@ class CommentController extends Controller
         }
 
         // Hapus notifikasi comment juga
-        Notification::where('komentar_foto_id', $comment->id)->delete();
+        // Notification::where('komentar_foto_id', $comment->id)->delete();
 
         $comment->delete();
         return response()->json(['success' => true]);

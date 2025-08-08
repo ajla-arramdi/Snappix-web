@@ -38,11 +38,10 @@ class PostController extends Controller
 
     public function index()
     {
-        $posts = PostFoto::with(['user', 'komentarFotos', 'likeFotos'])
-                         ->where('user_id', auth()->id())
-                         ->orderBy('created_at', 'desc')
-                         ->paginate(12);
-        
+        $posts = PostFoto::with(['user', 'komentarFotos', 'likeFotos'])->notBanned()
+            ->where('user_id', auth()->id())->orderBy('created_at', 'desc')
+            ->paginate(12);
+
         return view('user.posts.index', compact('posts'));
     }
 
@@ -101,12 +100,18 @@ class PostController extends Controller
 
     public function show(PostFoto $post)
     {
-        $post->load(['user', 'komentarFotos.user', 'likeFotos.user']);
-        
+        if ($post->is_banned || $post->user->is_banned) {
+            abort(404, 'Postingan tidak ditemukan');
+        }
+
+        $post->load([
+            'user',
+            'komentarFotos' => function ($query) {
+                $query->notBanned()->with('user')->orderBy('created_at', 'desc');
+            },
+            'likeFotos.user'
+        ]);
+
         return view('user.posts.show', compact('post'));
     }
 }
-
-
-
-

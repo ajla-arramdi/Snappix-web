@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('avatar')->nullable();
             $table->boolean('is_banned')->default(false);
             $table->timestamp('banned_at')->nullable();
             $table->foreignId('banned_by')->nullable()->constrained('users')->onDelete('set null');
@@ -34,4 +35,5 @@ return new class extends Migration
         Schema::dropIfExists('users');
     }
 };
+
 

@@ -37,15 +37,16 @@ class KomentarFoto extends Model
         return $this->belongsTo(PostFoto::class, 'post_foto_id');
     }
 
-    // public function notifications()
-    // {
-    //     return $this->hasMany(Notification::class, 'komentar_foto_id');
-    // }
-
     public function reportComments()
     {
         return $this->hasMany(ReportComment::class, 'komentar_foto_id');
     }
+
+    public function scopeNotBanned($query)
+    {
+        return $query->where('is_banned', false);
+    }
 }
+
 
 

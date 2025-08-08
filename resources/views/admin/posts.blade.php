@@ -4,195 +4,218 @@
 @section('page-title', 'Kelola Postingan')
 
 @section('content')
-<div class="bg-white rounded-lg shadow">
-    <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Daftar Postingan</h3>
-            <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-500">Total: {{ $posts->total() }} postingan</span>
-                <div class="flex items-center space-x-2">
-                    <select class="text-sm border-gray-300 rounded-md">
-                        <option value="all">Semua Postingan</option>
-                        <option value="active">Aktif</option>
-                        <option value="banned">Dibanned</option>
-                    </select>
-                </div>
+<div style="padding: 32px; background: #f8fafc; min-height: 100vh;">
+    <!-- Header Section -->
+    <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h2 style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0;">Daftar Postingan</h2>
+                <p style="color: #64748b; margin: 0;">Total: {{ $posts->total() }} postingan</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <select style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-size: 14px;">
+                    <option value="all">Semua Postingan</option>
+                    <option value="active">Aktif</option>
+                    <option value="banned">Dibanned</option>
+                </select>
+                <button style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer;">
+                    <i class="fas fa-filter" style="margin-right: 8px;"></i>Filter
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Posts Grid -->
-    <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($posts as $post)
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+    @if($posts->count() > 0)
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
+            @foreach($posts as $post)
+            <div style="background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden; transition: all 0.3s ease;" 
+                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)';" 
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.05)';">
+                
                 <!-- Post Image -->
-                <div class="relative">
+                <div style="position: relative; height: 240px; overflow: hidden;">
                     @if($post->image)
                         <img src="{{ asset('storage/' . $post->image) }}" 
                              alt="Post Image" 
-                             class="w-full h-48 object-cover rounded-t-lg">
+                             style="width: 100%; height: 100%; object-fit: cover;">
                     @else
-                        <div class="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                            <i class="fas fa-image text-gray-400 text-3xl"></i>
+                        <div style="width: 100%; height: 100%; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-image" style="color: #9ca3af; font-size: 48px;"></i>
                         </div>
                     @endif
                     
                     <!-- Status Badge -->
-                    @if($post->is_banned)
-                        <span class="absolute top-2 right-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            <i class="fas fa-ban mr-1"></i>
-                            Banned
-                        </span>
-                    @else
-                        <span class="absolute top-2 right-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <i class="fas fa-check-circle mr-1"></i>
-                            Active
-                        </span>
-                    @endif
+                    <div style="position: absolute; top: 12px; left: 12px;">
+                        @if($post->is_banned ?? false)
+                            <span style="background: #dc2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-ban" style="margin-right: 4px;"></i>Banned
+                            </span>
+                        @else
+                            <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-check" style="margin-right: 4px;"></i>Aktif
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px;">
+                        <a href="{{ route('admin.post-detail', $post->id) }}" 
+                           style="width: 32px; height: 32px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s ease;"
+                           onmouseover="this.style.background='white';"
+                           onmouseout="this.style.background='rgba(255,255,255,0.9)';">
+                            <i class="fas fa-eye" style="font-size: 12px;"></i>
+                        </a>
+                        <form method="POST" action="{{ route('admin.delete-post', $post) }}" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    style="width: 32px; height: 32px; background: rgba(220,38,38,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; color: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s ease;"
+                                    onmouseover="this.style.background='#dc2626';"
+                                    onmouseout="this.style.background='rgba(220,38,38,0.9)';"
+                                    onclick="return confirm('Yakin ingin hapus postingan ini?')">
+                                <i class="fas fa-trash" style="font-size: 12px;"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Post Content -->
-                <div class="p-4">
+                <div style="padding: 20px;">
                     <!-- User Info -->
-                    <div class="flex items-center mb-3">
-                        <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                            <span class="text-white font-medium text-xs">
-                                {{ strtoupper(substr($post->user->name, 0, 2)) }}
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                            <span style="color: white; font-weight: 700; font-size: 14px;">
+                                {{ strtoupper(substr($post->user->name, 0, 1)) }}
                             </span>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">{{ $post->user->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</p>
+                        <div style="flex: 1;">
+                            <h4 style="font-weight: 600; color: #1e293b; margin: 0 0 2px 0; font-size: 14px;">{{ $post->user->name }}</h4>
+                            <p style="color: #64748b; margin: 0; font-size: 12px;">{{ $post->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
 
                     <!-- Caption -->
-                    <p class="text-sm text-gray-700 mb-3 line-clamp-2">{{ $post->caption }}</p>
+                    @if($post->caption)
+                        <p style="color: #374151; margin: 0 0 16px 0; font-size: 14px; line-height: 1.5;">{{ Str::limit($post->caption, 80) }}</p>
+                    @endif
 
                     <!-- Stats -->
-                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <div class="flex items-center space-x-4">
-                            <span class="flex items-center">
-                                <i class="fas fa-heart mr-1 text-red-400"></i>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px;">
+                        <div style="display: flex; gap: 16px;">
+                            <span style="display: flex; align-items: center; color: #64748b; font-size: 13px;">
+                                <i class="fas fa-heart" style="color: #ef4444; margin-right: 6px;"></i>
                                 {{ $post->likeFotos->count() }}
                             </span>
-                            <span class="flex items-center">
-                                <i class="fas fa-comment mr-1 text-blue-400"></i>
+                            <span style="display: flex; align-items: center; color: #64748b; font-size: 13px;">
+                                <i class="fas fa-comment" style="color: #3b82f6; margin-right: 6px;"></i>
                                 {{ $post->komentarFotos->count() }}
                             </span>
                         </div>
-                        <span class="text-xs">{{ $post->created_at->format('d M Y') }}</span>
+                        <span style="color: #9ca3af; font-size: 12px;">{{ $post->created_at->format('d M Y') }}</span>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="flex items-center justify-between">
-                        <a href="{{ route('admin.post-detail', $post->id) }}" 
-                           class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
-                            <i class="fas fa-eye mr-1"></i>
-                            Detail
-                        </a>
-
-                        <div class="flex items-center space-x-1">
-                            @if($post->is_banned)
-                                <form method="POST" action="{{ route('admin.unban-post', $post) }}" class="inline">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-white bg-green-600 hover:bg-green-700 transition">
-                                        <i class="fas fa-unlock text-xs"></i>
-                                    </button>
-                                </form>
-                            @else
-                                <form method="POST" action="{{ route('admin.ban-post', $post) }}" class="inline">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-white bg-yellow-600 hover:bg-yellow-700 transition"
-                                            onclick="return confirm('Yakin ingin ban postingan ini?')">
-                                        <i class="fas fa-ban text-xs"></i>
-                                    </button>
-                                </form>
-                            @endif
-
-                            <form method="POST" action="{{ route('admin.delete-post', $post) }}" class="inline">
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px;">
+                        @if($post->is_banned ?? false)
+                            <form method="POST" action="{{ route('admin.unban-post', $post) }}" style="flex: 1;">
                                 @csrf
-                                @method('DELETE')
                                 <button type="submit" 
-                                        class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition"
-                                        onclick="return confirm('Yakin ingin hapus postingan ini?')">
-                                    <i class="fas fa-trash text-xs"></i>
+                                        style="width: 100%; background: #16a34a; color: white; padding: 8px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                        onmouseover="this.style.background='#15803d';"
+                                        onmouseout="this.style.background='#16a34a';">
+                                    <i class="fas fa-unlock" style="margin-right: 6px;"></i>Unban
                                 </button>
                             </form>
-                        </div>
+                        @else
+                            <form method="POST" action="{{ route('admin.ban-post', $post) }}" style="flex: 1;">
+                                @csrf
+                                <button type="submit" 
+                                        style="width: 100%; background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                                        onmouseover="this.style.background='#b91c1c';"
+                                        onmouseout="this.style.background='#dc2626';"
+                                        onclick="return confirm('Ban postingan ini?')">
+                                    <i class="fas fa-ban" style="margin-right: 6px;"></i>Ban
+                                </button>
+                            </form>
+                        @endif
+                        
+                        <a href="{{ route('admin.post-detail', $post->id) }}" 
+                           style="background: #3b82f6; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;"
+                           onmouseover="this.style.background='#2563eb';"
+                           onmouseout="this.style.background='#3b82f6';">
+                            <i class="fas fa-eye" style="margin-right: 6px;"></i>Detail
+                        </a>
                     </div>
                 </div>
             </div>
-            @empty
-            <div class="col-span-full">
-                <div class="text-center py-12">
-                    <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada postingan</h3>
-                    <p class="text-gray-500">Belum ada postingan yang dibuat oleh user.</p>
-                </div>
-            </div>
-            @endforelse
+            @endforeach
         </div>
 
         <!-- Pagination -->
         @if($posts->hasPages())
-            <div class="mt-6">
+            <div style="display: flex; justify-content: center; margin-top: 32px;">
                 {{ $posts->links() }}
             </div>
         @endif
-    </div>
-</div>
-
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                <i class="fas fa-images text-xl"></i>
+    @else
+        <!-- Empty State -->
+        <div style="background: white; border-radius: 16px; padding: 48px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+            <div style="width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto;">
+                <i class="fas fa-images" style="color: #9ca3af; font-size: 32px;"></i>
             </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Total Posts</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $posts->total() }}</p>
+            <h3 style="font-size: 20px; font-weight: 600; color: #1e293b; margin: 0 0 8px 0;">Belum ada postingan</h3>
+            <p style="color: #64748b; margin: 0;">Postingan dari pengguna akan muncul di sini</p>
+        </div>
+    @endif
+
+    <!-- Statistics Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 32px;">
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #3b82f6;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-images" style="color: #3b82f6; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Total Posts</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->total() }}</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                <i class="fas fa-check-circle text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Active Posts</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $posts->filter(fn($p) => !$p->is_banned)->count() }}</p>
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #ef4444;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-heart" style="color: #ef4444; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Total Likes</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->sum(fn($p) => $p->likeFotos->count()) }}</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                <i class="fas fa-ban text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Banned Posts</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $posts->filter(fn($p) => $p->is_banned)->count() }}</p>
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #8b5cf6;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #f3e8ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-comment" style="color: #8b5cf6; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Total Comments</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->sum(fn($p) => $p->komentarFotos->count()) }}</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                <i class="fas fa-heart text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h4 class="text-sm font-medium text-gray-500">Total Likes</h4>
-                <p class="text-2xl font-bold text-gray-900">{{ $posts->sum(fn($p) => $p->likeFotos->count()) }}</p>
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-top: 4px solid #f59e0b;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 48px; height: 48px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-calendar" style="color: #f59e0b; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">This Month</h4>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->filter(fn($p) => $p->created_at->isCurrentMonth())->count() }}</p>
+                </div>
             </div>
         </div>
     </div>
