@@ -8,6 +8,7 @@ use App\Models\PostFoto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class PostApiControllerTest extends TestCase
 {
@@ -24,24 +25,25 @@ class PostApiControllerTest extends TestCase
             ->assertJsonCount(3);
     }
 
-    public function test_can_create_post()
+     public function test_can_create_post()
     {
+        Storage::fake('public');
         $user = User::factory()->create();
-        $album = Album::factory()->create(['user_id' => $user->id]);
 
         $payload = [
             'judul' => 'Foto Pemandangan',
-            'deskripsi' => 'Deskripsi singkat',
-            'album_id' => $album->id,
-            'gambar' => UploadedFile::fake()->image('foto.jpg'),
+            'deskripsi' => 'Gunung di pagi hari',
+            'image' => UploadedFile::fake()->image('pemandangan.jpg'),
         ];
 
         $this->actingAs($user, 'sanctum')
             ->postJson('/api/posts', $payload)
-            ->dump() // Tambahkan ini untuk melihat response error detail
             ->assertStatus(201)
             ->assertJsonFragment(['judul' => 'Foto Pemandangan']);
+
+        Storage::disk('public')->assertExists('images/' . $payload['image']->hashName());
     }
+
 
     public function test_can_show_post()
     {
