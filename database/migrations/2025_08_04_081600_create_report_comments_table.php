@@ -10,14 +10,19 @@ return new class extends Migration
     {
         Schema::create('report_comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // yang melaporkan
-            $table->foreignId('komentar_foto_id')->constrained()->onDelete('cascade');
-            $table->string('alasan');
-            $table->text('deskripsi')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->text('admin_notes')->nullable();
-            $table->timestamp('reviewed_at')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // user yang melaporkan
+            $table->foreignId('comment_id')->constrained('comments')->onDelete('cascade'); // komentar yang dilaporkan
+
+            // Detail laporan
+            $table->string('alasan'); // alasan singkat
+            $table->text('deskripsi')->nullable(); // deskripsi tambahan
+
+            // Proses admin
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // status laporan
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null'); // admin yang memproses
+            $table->text('admin_notes')->nullable(); // catatan admin
+            $table->timestamp('reviewed_at')->nullable(); // waktu direview
+
             $table->timestamps();
         });
     }

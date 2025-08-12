@@ -3,75 +3,86 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\PostFoto;
-use App\Models\KomentarFoto;
-use App\Models\Notification;
+use App\Models\Comment;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Notification as NotificationsNotification;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, PostFoto $post)
+    /**
+     * Store a new comment.
+     */
+    public function store(Request $request, $postId)
     {
-        try {
-            // Validasi
-            $request->validate([
-                'isi_komentar' => 'required|string|max:500'
-            ]);
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
 
-            $comment = KomentarFoto::create([
-                'user_id' => auth()->id(),
-                'post_foto_id' => $post->id,
-                'isi_komentar' => $request->isi_komentar
-            ]);
+        $comment = Comment::create([
+            'user_id'      => auth()->id(),
+            'post_foto_id' => $postId,
+            'content'      => $request->content,
+        ]);
 
+        // Jika request dari AJAX, balikin JSON
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
+                'message' => 'Komentar berhasil ditambahkan.',
                 'comment' => [
-                    'id' => $comment->id,
-                    'isi_komentar' => $comment->isi_komentar,
-                    'user_name' => auth()->user()->name,
-                    'created_at' => 'just now',
-                    'can_delete' => true
-                ]
+                    'id'      => $comment->id,
+                    'user'    => $comment->user->name,
+                    'content' => $comment->content,
+                    'time'    => $comment->created_at->diffForHumans(),
+                ],
             ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (\Exception $e) {
-            \Log::error('Comment creation failed', [
-                'error' => $e->getMessage(),
-                'post_id' => $post->id,
-                'user_id' => auth()->id()
-            ]);
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create comment'
-            ], 500);
         }
+
+        // Jika bukan AJAX, tetap redirect
+        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 
-    public function destroy(KomentarFoto $comment)
+    /**
+     * Update an existing comment.
+     */
+    public function update(Request $request, Comment $comment)
     {
-        if ($comment->user_id !== auth()->id()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        $this->authorize('update', $comment);
+
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment->update([
+            'content' => $request->content,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Komentar berhasil diubah.',
+                'content' => $comment->content,
+            ]);
         }
 
-        // Hapus notifikasi comment juga
-        // Notification::where('komentar_foto_id', $comment->id)->delete();
+        return redirect()->back()->with('success', 'Komentar berhasil diubah.');
+    }
+
+    /**
+     * Delete a comment.
+     */
+    public function destroy(Request $request, Comment $comment)
+    {
+        $this->authorize('delete', $comment);
 
         $comment->delete();
-        return response()->json(['success' => true]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Komentar berhasil dihapus.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Komentar berhasil dihapus.');
     }
 }
-
-
-
-
-

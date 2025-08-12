@@ -11,7 +11,7 @@ class ReportComment extends Model
 
     protected $fillable = [
         'user_id',
-        'komentar_foto_id',
+        'comment_id',
         'alasan',
         'deskripsi',
         'status',
@@ -20,20 +20,19 @@ class ReportComment extends Model
         'reviewed_at',
     ];
 
-    protected $casts = [
-        'reviewed_at' => 'datetime',
-    ];
-
+    // Relasi ke user pelapor
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function komentarFoto()
+    // Relasi ke komentar yang dilaporkan
+    public function comment()
     {
-        return $this->belongsTo(KomentarFoto::class);
+        return $this->belongsTo(Comment::class);
     }
 
+    // Relasi ke admin yang memproses
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');

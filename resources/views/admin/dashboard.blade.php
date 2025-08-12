@@ -139,7 +139,7 @@
                 <i class="fas fa-users"></i>
                 Kelola User
             </a>
-            <a href="{{ route('admin.posts') }}" 
+            <a href="{{ route('admin.dashboard') }}" 
                style="padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; transition: all 0.3s ease;"
                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(16, 185, 129, 0.3)';"
                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
