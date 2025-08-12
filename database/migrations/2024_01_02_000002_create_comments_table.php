@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // yang berkomentar
             $table->foreignId('post_foto_id')->constrained('post_fotos')->onDelete('cascade'); // postingan foto yang dikomentari
-            $table->text('content'); // isi komentar
+            $table->text('isi_komentar'); // isi komentar
 
             // Moderasi
             $table->boolean('is_banned')->default(false); // status banned

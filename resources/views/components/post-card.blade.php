@@ -48,9 +48,9 @@
                 </button>
                 
                 <button onclick="focusComment({{ $post->id }})" 
-                        class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 hover:scale-110 transition-all duration-200">
+                        class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors">
                     <i class="fas fa-comment text-xl"></i>
-                    <span class="font-medium">{{ $post->komentarFotos->count() }}</span>
+                    <span class="font-medium">{{ $post->comments->count() }}</span>
                 </button>
                 
                 <button class="text-gray-600 hover:text-green-500 hover:scale-110 transition-all duration-200">
@@ -77,7 +77,7 @@
         <div class="space-y-3">
             <!-- Show recent comments -->
             <div id="comments-{{ $post->id }}">
-                @foreach($post->komentarFotos->take(3) as $comment)
+                @foreach($post->comments->take(3) as $comment)
                     <div class="comment-item" data-comment-id="{{ $comment->id }}">
                         <p class="text-sm text-gray-900">
                             <span class="font-semibold">{{ $comment->user->name }}</span>
@@ -94,9 +94,9 @@
                 @endforeach
             </div>
 
-            @if($post->komentarFotos->count() > 3)
+            @if($post->comments->count() > 3)
                 <button class="text-sm text-gray-500 hover:text-gray-700 font-medium">
-                    View all {{ $post->komentarFotos->count() }} comments
+                    View all {{ $post->comments->count() }} comments
                 </button>
             @endif
 

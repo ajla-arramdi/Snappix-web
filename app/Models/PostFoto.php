@@ -24,9 +24,9 @@ class PostFoto extends Model
         return $this->belongsTo(Album::class);
     }
 
-    public function komentarFotos()
+    public function comments()
     {
-        return $this->hasMany(KomentarFoto::class, 'post_foto_id');
+        return $this->hasMany(Comment::class, 'post_foto_id');
     }
 
     public function likeFotos()
@@ -47,7 +47,7 @@ class PostFoto extends Model
 
     public function getCommentsCountAttribute()
     {
-        return $this->komentarFotos()->where('is_banned', false)->count();
+        return $this->comments()->where('is_banned', false)->count();
     }
 
     public function scopeNotBanned($query)

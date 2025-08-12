@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\KomentarFoto;
+use App\Models\Comment;
 use App\Models\User;
 use App\Models\PostFoto;
 use App\Models\ReportPost;
@@ -19,7 +19,7 @@ class AdminController extends Controller
         $totalAdmins = User::role('admin')->count();
         $totalBannedUsers = User::where('is_banned', true)->count();
         $totalPosts = \App\Models\PostFoto::count();
-        $totalComments = \App\Models\KomentarFoto::count();
+        $totalComments = \App\Models\Comment::count();
         $totalReports = \App\Models\ReportPost::count();
         
         return view('admin.dashboard', compact(
@@ -40,7 +40,7 @@ class AdminController extends Controller
 
     public function posts()
     {
-        $posts = PostFoto::with(['user', 'komentarFotos', 'likeFotos'])
+        $posts = PostFoto::with(['user', 'comments', 'likeFotos'])
                          ->orderBy('created_at', 'desc')
                          ->paginate(10);
         
@@ -49,7 +49,7 @@ class AdminController extends Controller
 
     public function postDetail($id)
     {
-        $post = PostFoto::with(['user', 'komentarFotos.user', 'likeFotos.user'])
+        $post = PostFoto::with(['user', 'comments.user', 'likeFotos.user'])
                         ->findOrFail($id);
         
         return view('admin.post-detail', compact('post'));
@@ -85,7 +85,7 @@ class AdminController extends Controller
         return back()->with('success', 'Postingan berhasil dihapus');
     }
 
-    public function banComment(KomentarFoto $comment)
+    public function banComment(Comment $comment)
     {
         $comment->update([
             'is_banned' => true,
@@ -97,7 +97,19 @@ class AdminController extends Controller
         return back()->with('success', 'Komentar berhasil dibanned');
     }
 
-    public function deleteComment(KomentarFoto $comment)
+    public function unbanComment(Comment $comment)
+    {
+        $comment->update([
+            'is_banned' => false,
+            'banned_at' => null,
+            'banned_by' => null,
+            'ban_reason' => null
+        ]);
+
+        return back()->with('success', 'Komentar berhasil di-unban');
+    }
+
+    public function deleteComment(Comment $comment)
     {
         $comment->delete();
         return back()->with('success', 'Komentar berhasil dihapus');
@@ -109,7 +121,7 @@ class AdminController extends Controller
                                 ->orderBy('created_at', 'desc')
                                 ->paginate(10);
         
-        $reportComments = ReportComment::with(['user', 'komentarFoto.user', 'admin'])
+        $reportComments = ReportComment::with(['user', 'comment.user', 'admin'])
                                      ->orderBy('created_at', 'desc')
                                      ->paginate(10);
         
@@ -124,95 +136,81 @@ class AdminController extends Controller
     {
         $report = ReportPost::findOrFail($id);
         
-        $status = $action === 'approve' ? 'approved' : 'rejected';
-        $adminNotes = request('admin_notes', $action === 'approve' ? 'Disetujui oleh admin' : 'Ditolak oleh admin');
+        if (!in_array($action, ['approve', 'reject'])) {
+            return back()->with('error', 'Aksi tidak valid.');
+        }
 
         $report->update([
-            'status' => $status,
+            'status' => $action === 'approve' ? 'approved' : 'rejected',
             'admin_id' => auth()->id(),
-            'admin_notes' => $adminNotes,
-            'reviewed_at' => now()
+            'reviewed_at' => now(),
         ]);
 
-        // If approved, ban the reported post
+        // Jika approve, ban post
         if ($action === 'approve' && $report->postFoto) {
-            \Log::info("Banning post ID: {$report->postFoto->id}");
-            
-            $updated = $report->postFoto->update([
+            $report->postFoto->update([
                 'is_banned' => true,
                 'banned_at' => now(),
                 'banned_by' => auth()->id(),
-                'ban_reason' => 'Postingan dilaporkan: ' . $report->alasan
+                'ban_reason' => 'Dilaporkan & disetujui admin',
             ]);
-            
-            \Log::info("Post banned successfully: " . ($updated ? 'true' : 'false'));
-            \Log::info("Post is_banned after update: " . ($report->postFoto->fresh()->is_banned ? 'true' : 'false'));
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $action === 'approve' ? 'Laporan disetujui dan postingan telah dibanned' : 'Laporan ditolak'
-        ]);
+        return back()->with('success', 'Laporan post berhasil diproses.');
     }
 
     public function reviewCommentReport($id, $action)
     {
         $report = ReportComment::findOrFail($id);
         
-        $status = $action === 'approve' ? 'approved' : 'rejected';
-        $adminNotes = request('admin_notes', $action === 'approve' ? 'Disetujui oleh admin' : 'Ditolak oleh admin');
+        if (!in_array($action, ['approve', 'reject'])) {
+            return back()->with('error', 'Aksi tidak valid.');
+        }
 
         $report->update([
-            'status' => $status,
+            'status' => $action === 'approve' ? 'approved' : 'rejected',
             'admin_id' => auth()->id(),
-            'admin_notes' => $adminNotes,
-            'reviewed_at' => now()
+            'reviewed_at' => now(),
         ]);
 
-        // If approved, ban the reported comment
-        if ($action === 'approve' && $report->komentarFoto) {
-            $report->komentarFoto->update([
+        // Jika approve, ban comment
+        if ($action === 'approve' && $report->comment) {
+            $report->comment->update([
                 'is_banned' => true,
                 'banned_at' => now(),
                 'banned_by' => auth()->id(),
-                'ban_reason' => 'Komentar dilaporkan: ' . $report->alasan
+                'ban_reason' => 'Dilaporkan & disetujui admin',
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $action === 'approve' ? 'Laporan disetujui dan komentar telah dibanned' : 'Laporan ditolak'
-        ]);
+        return back()->with('success', 'Laporan komentar berhasil diproses.');
     }
 
     public function reviewUserReport($id, $action)
     {
         $report = ReportUser::findOrFail($id);
         
-        $status = $action === 'approve' ? 'approved' : 'rejected';
-        $adminNotes = request('admin_notes', $action === 'approve' ? 'Disetujui oleh admin' : 'Ditolak oleh admin');
+        if (!in_array($action, ['approve', 'reject'])) {
+            return back()->with('error', 'Aksi tidak valid.');
+        }
 
         $report->update([
-            'status' => $status,
+            'status' => $action === 'approve' ? 'approved' : 'rejected',
             'admin_id' => auth()->id(),
-            'admin_notes' => $adminNotes,
-            'reviewed_at' => now()
+            'reviewed_at' => now(),
         ]);
 
-        // If approved, ban the reported user
+        // Jika approve, ban user
         if ($action === 'approve' && $report->reportedUser) {
             $report->reportedUser->update([
                 'is_banned' => true,
                 'banned_at' => now(),
                 'banned_by' => auth()->id(),
-                'ban_reason' => 'User dilaporkan: ' . $report->alasan
+                'ban_reason' => 'Dilaporkan & disetujui admin',
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $action === 'approve' ? 'Laporan disetujui dan user telah dibanned' : 'Laporan ditolak'
-        ]);
+        return back()->with('success', 'Laporan user berhasil diproses.');
     }
 
     private function getReportModel($type)

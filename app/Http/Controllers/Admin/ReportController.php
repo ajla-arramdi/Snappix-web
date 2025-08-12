@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\KomentarFoto;
+use App\Models\Comment;
 use App\Models\PostFoto;
 use App\Models\ReportComment;
 use App\Models\ReportPost;
@@ -45,7 +45,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function reportComment(Request $request, KomentarFoto $komentarFoto)
+    public function reportComment(Request $request, Comment $comment)
     {
         $request->validate([
             'alasan' => 'required|string',
@@ -54,7 +54,7 @@ class ReportController extends Controller
 
         // Cek apakah user sudah pernah report comment ini
         $existingReport = ReportComment::where('user_id', auth()->id())
-            ->where('komentar_foto_id', $komentarFoto->id)
+            ->where('comment_id', $comment->id)
             ->first();
 
         if ($existingReport) {
@@ -66,7 +66,7 @@ class ReportController extends Controller
 
         ReportComment::create([
             'user_id' => auth()->id(),
-            'komentar_foto_id' => $komentarFoto->id,
+            'comment_id' => $comment->id,
             'alasan' => $request->alasan,
             'deskripsi' => $request->deskripsi
         ]);
@@ -121,7 +121,7 @@ class ReportController extends Controller
         $reportPosts = ReportPost::with(['user', 'postFoto.user', 'admin'])
             ->orderBy('created_at', 'desc')->paginate(10);
 
-        $reportComments = ReportComment::with(['user', 'komentarFoto.user', 'admin'])
+        $reportComments = ReportComment::with(['user', 'comment.user', 'admin'])
             ->orderBy('created_at', 'desc')->paginate(10);
 
         $reportUsers = ReportUser::with(['reporter', 'reportedUser', 'admin'])
@@ -176,5 +176,26 @@ class ReportController extends Controller
             'user' => ReportUser::class,
             default => throw new \InvalidArgumentException('Invalid report type')
         };
+    }
+
+    public function getReports()
+    {
+        $reportPosts = ReportPost::with(['user', 'postFoto.user', 'admin'])
+                                ->orderBy('created_at', 'desc')
+                                ->paginate(10);
+        
+        $reportComments = ReportComment::with(['user', 'comment.user', 'admin'])
+                                     ->orderBy('created_at', 'desc')
+                                     ->paginate(10);
+        
+        $reportUsers = ReportUser::with(['reporter', 'reportedUser', 'admin'])
+                                ->orderBy('created_at', 'desc')
+                                ->paginate(10);
+        
+        return response()->json([
+            'reportPosts' => $reportPosts,
+            'reportComments' => $reportComments,
+            'reportUsers' => $reportUsers
+        ]);
     }
 }

@@ -109,7 +109,7 @@
                             </span>
                             <span style="display: flex; align-items: center; color: #64748b; font-size: 13px;">
                                 <i class="fas fa-comment" style="color: #3b82f6; margin-right: 6px;"></i>
-                                {{ $post->komentarFotos->count() }}
+                                {{ $post->comments->count() }}
                             </span>
                         </div>
                         <span style="color: #9ca3af; font-size: 12px;">{{ $post->created_at->format('d M Y') }}</span>
@@ -202,7 +202,7 @@
                 </div>
                 <div>
                     <h4 style="font-size: 14px; color: #64748b; font-weight: 500; margin: 0 0 4px 0;">Total Comments</h4>
-                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->sum(fn($p) => $p->komentarFotos->count()) }}</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #1e293b; margin: 0;">{{ $posts->sum(fn($p) => $p->comments->count()) }}</p>
                 </div>
             </div>
         </div>

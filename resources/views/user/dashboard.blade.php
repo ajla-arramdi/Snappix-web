@@ -60,7 +60,7 @@
                                                 </button>
                                                 <button class="bg-white/90 hover:bg-white text-gray-800 px-3 py-2 rounded-full shadow-lg transition-colors flex items-center space-x-1">
                                                     <i class="fas fa-comment text-sm"></i>
-                                                    <span class="text-xs font-medium">{{ $post->komentarFotos->count() }}</span>
+                                                    <span class="text-xs font-medium">{{ $post->comments->count() }}</span>
                                                 </button>
                                             </div>
                                             <a href="{{ route('posts.show', $post) }}" 

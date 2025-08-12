@@ -14,14 +14,17 @@ class CommentController extends Controller
     public function store(Request $request, $postId)
     {
         $request->validate([
-            'content' => 'required|string|max:1000',
+            'isi_komentar' => 'required|string|max:1000',
         ]);
 
         $comment = Comment::create([
             'user_id'      => auth()->id(),
             'post_foto_id' => $postId,
-            'content'      => $request->content,
+            'isi_komentar' => $request->isi_komentar,
         ]);
+
+        // Load the user relationship for the response
+        $comment->load('user');
 
         // Jika request dari AJAX, balikin JSON
         if ($request->expectsJson()) {
@@ -31,7 +34,7 @@ class CommentController extends Controller
                 'comment' => [
                     'id'      => $comment->id,
                     'user'    => $comment->user->name,
-                    'content' => $comment->content,
+                    'isi_komentar' => $comment->isi_komentar,
                     'time'    => $comment->created_at->diffForHumans(),
                 ],
             ]);
@@ -49,18 +52,18 @@ class CommentController extends Controller
         $this->authorize('update', $comment);
 
         $request->validate([
-            'content' => 'required|string|max:1000',
+            'isi_komentar' => 'required|string|max:1000',
         ]);
 
         $comment->update([
-            'content' => $request->content,
+            'isi_komentar' => $request->isi_komentar,
         ]);
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Komentar berhasil diubah.',
-                'content' => $comment->content,
+                'isi_komentar' => $comment->isi_komentar,
             ]);
         }
 

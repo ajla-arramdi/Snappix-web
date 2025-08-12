@@ -75,7 +75,7 @@
                         </div>
                         <div style="display: flex; align-items: center; color: #64748b;">
                             <i class="fas fa-comment" style="color: #3b82f6; margin-right: 8px; font-size: 18px;"></i>
-                            <span style="font-weight: 600; font-size: 16px;">{{ $post->komentarFotos->count() }} komentar</span>
+                            <span style="font-weight: 600; font-size: 16px;">{{ $post->comments->count() }} komentar</span>
                         </div>
                     </div>
                 </div>
@@ -128,12 +128,12 @@
             <div style="background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
                 <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
                     <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">
-                        Komentar ({{ $post->komentarFotos->count() }})
+                        Komentar ({{ $post->comments->count() }})
                     </h3>
                 </div>
 
                 <div style="max-height: 400px; overflow-y: auto;">
-                    @forelse($post->komentarFotos as $comment)
+                    @forelse($post->comments as $comment)
                     <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9;">
                         <div style="display: flex; align-items: start; gap: 12px;">
                             <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #16a34a, #3b82f6); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">

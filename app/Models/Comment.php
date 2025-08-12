@@ -12,7 +12,7 @@ class Comment extends Model
     protected $fillable = [
         'user_id',
         'post_foto_id',
-        'content',
+        'isi_komentar',
         'is_banned',
         'banned_at',
         'banned_by',

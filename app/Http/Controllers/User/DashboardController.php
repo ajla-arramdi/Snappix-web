@@ -14,7 +14,7 @@ class DashboardController extends Controller
         
         $posts = PostFoto::where('is_banned', false)->whereHas('user', function($query) {
                     $query->where('is_banned', false);
-                })->with(['user', 'komentarFotos' => function($query) {
+                })->with(['user', 'comments' => function($query) {
                     $query->where('is_banned', false)->with('user');
                 }, 'likeFotos.user'])
                 ->latest()

@@ -10,7 +10,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = PostFoto::with(['user', 'komentarFotos', 'likeFotos'])
+        $posts = PostFoto::with(['user', 'comments', 'likeFotos'])
                          ->orderBy('created_at', 'desc')
                          ->paginate(10);
         
@@ -19,7 +19,7 @@ class PostController extends Controller
 
     public function show($id)
     {
-        $post = PostFoto::with(['user', 'komentarFotos.user', 'likeFotos.user'])
+        $post = PostFoto::with(['user', 'comments.user', 'likeFotos.user'])
                         ->findOrFail($id);
         
         return view('admin.post-detail', compact('post'));

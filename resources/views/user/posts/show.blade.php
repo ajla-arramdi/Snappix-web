@@ -77,7 +77,7 @@
                         <button onclick="focusComment()" 
                                 class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors">
                             <i class="fas fa-comment text-xl"></i>
-                            <span class="font-medium">{{ $post->komentarFotos->count() }}</span>
+                            <span class="font-medium">{{ $post->comments->count() }}</span>
                         </button>
                         
                         <button class="text-gray-600 hover:text-green-500 transition-colors">
@@ -89,7 +89,7 @@
                 <!-- Comments -->
                 <div class="flex-1 overflow-y-auto max-h-96">
                     <div id="comments-container" class="p-4 space-y-4">
-                        @forelse($post->komentarFotos as $comment)
+                        @forelse($post->comments as $comment)
                         <div class="comment-item flex space-x-3" data-comment-id="{{ $comment->id }}">
                             @if($comment->user->avatar)
                                 <img src="{{ asset('storage/' . $comment->user->avatar) }}" 
@@ -268,20 +268,30 @@ function submitReport(event) {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: formData
     })
-    .then(response => {
+    .then(async response => {
         console.log('Response status:', response.status);
-        return response.json();
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const data = await response.json();
+            return { ok: response.ok, status: response.status, data };
+        }
+        const text = await response.text();
+        return { ok: response.ok, status: response.status, data: { success: false, message: text } };
     })
-    .then(data => {
+    .then(({ ok, status, data }) => {
         console.log('Response data:', data);
-        if (data.success) {
+        if (ok && data.success) {
             alert('✅ Laporan berhasil dikirim!');
             closeReportModal();
         } else {
-            alert('❌ ' + (data.message || 'Terjadi kesalahan'));
+            if (status === 401) alert('Silakan login terlebih dahulu.');
+            else if (status === 419) alert('Sesi kadaluarsa. Silakan refresh halaman.');
+            else alert('❌ ' + (data.message || 'Terjadi kesalahan'));
         }
     })
     .catch(error => {
@@ -302,9 +312,22 @@ function toggleLike(postId) {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
     })
-    .then(response => response.json())
+    .then(async response => {
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(text || 'Unexpected response');
+        }
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || 'Request failed');
+        }
+        return response.json();
+    })
     .then(data => {
         const button = document.querySelector(`[data-post-id="${postId}"]`);
         const icon = button.querySelector('i');
@@ -319,6 +342,10 @@ function toggleLike(postId) {
         }
         
         count.textContent = data.count;
+    })
+    .catch(error => {
+        console.error('Like error:', error);
+        alert('Gagal memproses like. ' + error.message);
     });
 }
 
@@ -332,21 +359,43 @@ function addComment(event) {
     
     if (!comment) return;
     
+    console.log('Adding comment:', comment);
+    
     fetch(`/posts/{{ $post->id }}/comments`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             isi_komentar: comment
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+    .then(async response => {
+        console.log('Response status:', response.status);
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const data = await response.json();
+            return { ok: response.ok, status: response.status, data };
         }
+        const text = await response.text();
+        return { ok: response.ok, status: response.status, data: { success: false, message: text } };
+    })
+    .then(({ ok, status, data }) => {
+        console.log('Response data:', data);
+        if (ok && data.success) {
+            location.reload();
+        } else {
+            if (status === 401) alert('Silakan login terlebih dahulu.');
+            else if (status === 419) alert('Sesi kadaluarsa. Silakan refresh halaman.');
+            else alert('Error: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error adding comment:', error);
+        alert('Error adding comment: ' + error.message);
     });
 }
 
@@ -358,17 +407,35 @@ function deleteComment(commentId) {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(async response => {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const data = await response.json();
+            return { ok: response.ok, status: response.status, data };
+        }
+        const text = await response.text();
+        return { ok: response.ok, status: response.status, data: { success: false, message: text } };
+    })
+    .then(({ ok, status, data }) => {
+        if (ok && data.success) {
             document.querySelector(`[data-comment-id="${commentId}"]`).remove();
             
             // Update comment count
             const commentCount = document.querySelector('.fa-comment').nextElementSibling;
             commentCount.textContent = parseInt(commentCount.textContent) - 1;
+        } else {
+            if (status === 401) alert('Silakan login terlebih dahulu.');
+            else if (status === 419) alert('Sesi kadaluarsa. Silakan refresh halaman.');
+            else alert('Gagal menghapus komentar: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(error => {
+        console.error('Delete comment error:', error);
+        alert('Gagal menghapus komentar. ' + error.message);
     });
 }
 

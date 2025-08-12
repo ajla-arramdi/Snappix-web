@@ -10,14 +10,14 @@ class ExploreController extends Controller
 {
     public function index()
     {
-        $posts = PostFoto::with(['user', 'likeFotos', 'komentarFotos.user'])
-                         ->where('is_banned', false)
-                         ->whereHas('user', function($query) {
-                             $query->where('is_banned', false);
-                         })
-                         ->latest()
-                         ->paginate(12);
-        
+        $posts = PostFoto::with(['user', 'likeFotos', 'comments.user'])
+            ->where('is_banned', false)
+            ->whereHas('user', function($query) {
+                $query->where('is_banned', false);
+            })
+            ->latest()
+            ->paginate(12);
+
         return view('explore', compact('posts'));
     }
 }

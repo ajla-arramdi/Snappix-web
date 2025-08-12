@@ -50,7 +50,7 @@
                                     </div>
                                     <div class="flex items-center space-x-1">
                                         <i class="fas fa-comment"></i>
-                                        <span class="text-sm font-medium">{{ $post->komentarFotos->count() }}</span>
+                                        <span class="text-sm font-medium">{{ $post->comments->count() }}</span>
                                     </div>
                                 </div>
                             </div>

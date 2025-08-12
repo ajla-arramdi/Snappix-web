@@ -38,7 +38,7 @@ class PostController extends Controller
 
     public function index()
     {
-        $posts = PostFoto::with(['user', 'komentarFotos', 'likeFotos'])->notBanned()
+        $posts = PostFoto::with(['user', 'comments', 'likeFotos'])->notBanned()
             ->where('user_id', auth()->id())->orderBy('created_at', 'desc')
             ->paginate(12);
 
@@ -106,8 +106,8 @@ class PostController extends Controller
 
         $post->load([
             'user',
-            'komentarFotos' => function ($query) {
-                $query->notBanned()->with('user')->orderBy('created_at', 'desc');
+            'comments' => function ($query) {
+                $query->where('is_banned', false)->with('user')->orderBy('created_at', 'desc');
             },
             'likeFotos.user'
         ]);
