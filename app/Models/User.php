@@ -16,7 +16,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
+        'bio',
+        'avatar',
         'is_banned',
         'banned_at',
         'banned_by',
@@ -55,7 +58,6 @@ class User extends Authenticatable
         return $this->hasMany(LikeFoto::class);
     }
 
-
     public function reportPosts()
     {
         return $this->hasMany(ReportPost::class);
@@ -64,6 +66,16 @@ class User extends Authenticatable
     public function reportComments()
     {
         return $this->hasMany(ReportComment::class);
+    }
+
+    public function reportUsers()
+    {
+        return $this->hasMany(ReportUser::class, 'user_id');
+    }
+
+    public function reportedByUsers()
+    {
+        return $this->hasMany(ReportUser::class, 'reported_user_id');
     }
 }
 

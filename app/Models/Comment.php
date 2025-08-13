@@ -16,7 +16,7 @@ class Comment extends Model
         'is_banned',
         'banned_at',
         'banned_by',
-        'ban_reason',
+        'ban_reason'
     ];
 
     protected $casts = [
@@ -24,21 +24,23 @@ class Comment extends Model
         'banned_at' => 'datetime',
     ];
 
-    // Relasi ke user yang membuat komentar
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke postingan foto
     public function postFoto()
     {
-        return $this->belongsTo(PostFoto::class, 'post_foto_id');
+        return $this->belongsTo(PostFoto::class);
     }
 
-    // Relasi ke admin/mod yang membanned komentar
     public function bannedBy()
     {
         return $this->belongsTo(User::class, 'banned_by');
+    }
+
+    public function scopeNotBanned($query)
+    {
+        return $query->where('is_banned', false);
     }
 }

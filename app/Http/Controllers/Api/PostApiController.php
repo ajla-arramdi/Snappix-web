@@ -20,20 +20,25 @@ class PostApiController extends Controller
         $validated = $request->validate([
             'judul'     => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'album_id'  => 'required|exists:albums,id',
-            'gambar'    => 'required', // bisa URL atau file upload
+            'album_id'  => 'nullable|exists:albums,id',
+            'image'     => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Jika file upload
-        if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
-            $path = $request->file('gambar')->store('posts', 'public');
-            $validated['gambar'] = $path;
+        // Handle file upload
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $path = $request->file('image')->store('images', 'public');
+            $validated['image'] = $path;
         }
 
-        // Set user id
-        $validated['user_id'] = auth()->id();
+        // Map fields to database columns
+        $postData = [
+            'user_id' => auth()->id(),
+            'album_id' => $validated['album_id'] ?? null,
+            'caption' => $validated['judul'], // Map judul to caption
+            'image' => $validated['image'],
+        ];
 
-        $post = PostFoto::create($validated);
+        $post = PostFoto::create($postData);
 
         return response()->json($post, 201);
     }
@@ -50,25 +55,37 @@ class PostApiController extends Controller
             'judul'     => 'sometimes|string|max:255',
             'deskripsi' => 'nullable|string',
             'album_id'  => 'sometimes|exists:albums,id',
-            'gambar'    => 'nullable',
+            'image'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
-            if ($post->gambar && Storage::disk('public')->exists($post->gambar)) {
-                Storage::disk('public')->delete($post->gambar);
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            if ($post->image && Storage::disk('public')->exists($post->image)) {
+                Storage::disk('public')->delete($post->image);
             }
-            $validated['gambar'] = $request->file('gambar')->store('posts', 'public');
+            $validated['image'] = $request->file('image')->store('images', 'public');
         }
 
-        $post->update($validated);
+        // Map fields to database columns
+        $updateData = [];
+        if (isset($validated['judul'])) {
+            $updateData['caption'] = $validated['judul'];
+        }
+        if (isset($validated['album_id'])) {
+            $updateData['album_id'] = $validated['album_id'];
+        }
+        if (isset($validated['image'])) {
+            $updateData['image'] = $validated['image'];
+        }
+
+        $post->update($updateData);
 
         return response()->json($post);
     }
 
     public function destroy(PostFoto $post)
     {
-        if ($post->gambar && Storage::disk('public')->exists($post->gambar)) {
-            Storage::disk('public')->delete($post->gambar);
+        if ($post->image && Storage::disk('public')->exists($post->image)) {
+            Storage::disk('public')->delete($post->image);
         }
 
         $post->delete();

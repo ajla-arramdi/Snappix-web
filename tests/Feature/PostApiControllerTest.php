@@ -39,7 +39,7 @@ class PostApiControllerTest extends TestCase
         $this->actingAs($user, 'sanctum')
             ->postJson('/api/posts', $payload)
             ->assertStatus(201)
-            ->assertJsonFragment(['judul' => 'Foto Pemandangan']);
+            ->assertJsonFragment(['caption' => 'Foto Pemandangan']);
 
         Storage::disk('public')->assertExists('images/' . $payload['image']->hashName());
     }
