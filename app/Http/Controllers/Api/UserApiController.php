@@ -104,7 +104,7 @@ class UserApiController extends Controller
     }
 
     /**
-     * Get user's albums
+     * Get user's album
      */
     public function myAlbums()
     {
