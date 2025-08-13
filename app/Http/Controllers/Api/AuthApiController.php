@@ -10,14 +10,22 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthApiController extends Controller
 {
-    // Api register
+    // API Register
     public function register(Request $request)
     {
-        $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|string|email',
-            'password' => 'required'
+        $validator = Validator::make($request->all(), [
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
         $user = User::create([
             'name'     => $request->name,
@@ -32,21 +40,27 @@ class AuthApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Register berhasil',
-            'data' => [
-                'user'       => $user,
-                'token'      => $token,
-                'token_type' => 'Bearer'
-            ]
+            'user'    => $user,
+            'token'   => $token,
+            'token_type' => 'Bearer'
         ], 201);
     }
 
     // API Login
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
+        $validator = Validator::make($request->all(), [
+            'email'    => 'required|email',
             'password' => 'required'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
         $user = User::where('email', $request->email)->first();
 
@@ -63,11 +77,9 @@ class AuthApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'Bearer'
-            ]
+            'user'    => $user,
+            'token'   => $token,
+            'token_type' => 'Bearer'
         ]);
     }
 
@@ -87,7 +99,7 @@ class AuthApiController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $request->user()
+            'user'    => $request->user()
         ]);
     }
 }
