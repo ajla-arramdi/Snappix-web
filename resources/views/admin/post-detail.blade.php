@@ -34,15 +34,9 @@
                             </div>
                         </div>
                         
-                        @if($post->is_banned)
-                            <span style="display: inline-flex; align-items: center; background: #fef2f2; color: #dc2626; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
-                                <i class="fas fa-ban" style="margin-right: 8px;"></i>Banned
-                            </span>
-                        @else
-                            <span style="display: inline-flex; align-items: center; background: #dcfce7; color: #16a34a; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
-                                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Active
-                            </span>
-                        @endif
+                        <span style="display: inline-flex; align-items: center; background: #dcfce7; color: #16a34a; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Aktif
+                        </span>
                     </div>
                 </div>
 
@@ -71,7 +65,7 @@
                     <div style="display: flex; align-items: center; gap: 32px;">
                         <div style="display: flex; align-items: center; color: #64748b;">
                             <i class="fas fa-heart" style="color: #ef4444; margin-right: 8px; font-size: 18px;"></i>
-                            <span style="font-weight: 600; font-size: 16px;">{{ $post->likeFotos->count() }} likes</span>
+                            <span style="font-weight: 600; font-size: 16px;">{{ $post->likeFotos->count() }} like</span>
                         </div>
                         <div style="display: flex; align-items: center; color: #64748b;">
                             <i class="fas fa-comment" style="color: #3b82f6; margin-right: 8px; font-size: 18px;"></i>
@@ -83,38 +77,14 @@
                 <!-- Post Actions -->
                 <div style="padding: 24px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        @if($post->is_banned)
-                            <form method="POST" action="{{ route('admin.unban-post', $post) }}" style="display: inline;">
-                                @csrf
-                                <button type="submit" 
-                                        style="display: inline-flex; align-items: center; background: #16a34a; color: white; padding: 12px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-                                        onmouseover="this.style.background='#15803d';"
-                                        onmouseout="this.style.background='#16a34a';">
-                                    <i class="fas fa-unlock" style="margin-right: 8px;"></i>Unban Post
-                                </button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('admin.ban-post', $post) }}" style="display: inline;">
-                                @csrf
-                                <button type="submit" 
-                                        style="display: inline-flex; align-items: center; background: #f59e0b; color: white; padding: 12px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-                                        onmouseover="this.style.background='#d97706';"
-                                        onmouseout="this.style.background='#f59e0b';"
-                                        onclick="return confirm('Yakin ingin ban postingan ini?')">
-                                    <i class="fas fa-ban" style="margin-right: 8px;"></i>Ban Post
-                                </button>
-                            </form>
-                        @endif
-
-                        <form method="POST" action="{{ route('admin.delete-post', $post) }}" style="display: inline;">
+                        <form method="POST" action="{{ route('admin.ban-post', $post) }}" style="display: inline;">
                             @csrf
-                            @method('DELETE')
                             <button type="submit" 
                                     style="display: inline-flex; align-items: center; background: #dc2626; color: white; padding: 12px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
                                     onmouseover="this.style.background='#b91c1c';"
                                     onmouseout="this.style.background='#dc2626';"
                                     onclick="return confirm('Yakin ingin hapus postingan ini?')">
-                                <i class="fas fa-trash" style="margin-right: 8px;"></i>Delete Post
+                                <i class="fas fa-trash" style="margin-right: 8px;"></i>Hapus Postingan
                             </button>
                         </form>
                     </div>
@@ -154,7 +124,7 @@
                                     <button type="submit" 
                                             style="color: #dc2626; background: none; border: none; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;"
                                             onclick="return confirm('Yakin ingin hapus komentar ini?')">
-                                        <i class="fas fa-trash" style="margin-right: 4px;"></i>Delete
+                                        <i class="fas fa-trash" style="margin-right: 4px;"></i>Hapus
                                     </button>
                                 </form>
                             </div>
@@ -173,7 +143,7 @@
             <div style="background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
                 <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
                     <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">
-                        Likes ({{ $post->likeFotos->count() }})
+                        Like ({{ $post->likeFotos->count() }})
                     </h3>
                 </div>
 

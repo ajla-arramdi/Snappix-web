@@ -4,6 +4,19 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-4xl">
+    <!-- Flash Messages -->
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {{ session('error') }}
+        </div>
+    @endif
+    
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="md:flex">
             <!-- Image Section -->
@@ -32,7 +45,7 @@
                             <p class="text-sm text-gray-500">{{ $post->created_at->diffForHumans() }}</p>
                         </div>
                         <div class="relative">
-                            <button onclick="toggleMenu({{ $post->id }})" class="text-gray-600 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 text-lg font-bold">
+                            <button onclick="toggleMenu({{ $post->id }})" class="text-gray-600 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 text-lg font-bold" title="Menu">
                                 ⋯
                             </button>
                             
@@ -80,7 +93,7 @@
                             <span class="font-medium">{{ $post->comments->count() }}</span>
                         </button>
                         
-                        <button class="text-gray-600 hover:text-green-500 transition-colors">
+                        <button class="text-gray-600 hover:text-green-500 transition-colors" title="Bagikan">
                             <i class="fas fa-share text-xl"></i>
                         </button>
                     </div>
@@ -104,9 +117,10 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="font-semibold text-sm">{{ $comment->user->name }}</span>
                                     <span class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
-                                    @if(auth()->id() === $comment->user_id)
+                                    @if(auth()->id() === $comment->user_id || auth()->id() === $post->user_id)
                                         <button onclick="deleteComment({{ $comment->id }})" 
-                                                class="text-red-500 hover:text-red-700 text-xs">
+                                                class="text-red-500 hover:text-red-700 text-xs transition-colors"
+                                                title="{{ auth()->id() === $comment->user_id ? 'Hapus komentar saya' : 'Hapus komentar dari postingan saya' }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     @endif
@@ -117,7 +131,7 @@
                         @empty
                         <div class="text-center py-8">
                             <i class="fas fa-comments text-gray-400 text-3xl mb-3"></i>
-                            <p class="text-gray-500">No comments yet</p>
+                            <p class="text-gray-500">Belum ada komentar</p>
                         </div>
                         @endforelse
                     </div>
@@ -128,13 +142,13 @@
                     <form onsubmit="addComment(event)" class="flex items-center space-x-3">
                         <input type="text" 
                                name="isi_komentar" 
-                               placeholder="Add a comment..." 
+                               placeholder="Tulis komentar..." 
                                id="comment-input"
                                class="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                required>
                         <button type="submit" 
                                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">
-                            Post
+                            Kirim
                         </button>
                     </form>
                 </div>
@@ -401,7 +415,22 @@ function addComment(event) {
 
 // Delete comment
 function deleteComment(commentId) {
-    if (!confirm('Delete this comment?')) return;
+    // Cek apakah user adalah pemilik komentar atau pemilik postingan
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    const commentUser = commentElement.querySelector('.font-semibold').textContent;
+    const currentUser = '{{ auth()->user()->name }}';
+    const postOwner = '{{ $post->user->name }}';
+    
+    let confirmMessage = '';
+    if (currentUser === commentUser) {
+        confirmMessage = 'Yakin ingin menghapus komentar Anda sendiri?';
+    } else if (currentUser === postOwner) {
+        confirmMessage = `Yakin ingin menghapus komentar dari ${commentUser} di postingan Anda?`;
+    } else {
+        confirmMessage = 'Yakin ingin menghapus komentar ini?';
+    }
+    
+    if (!confirm(confirmMessage)) return;
     
     fetch(`/comments/${commentId}`, {
         method: 'DELETE',
@@ -427,15 +456,23 @@ function deleteComment(commentId) {
             // Update comment count
             const commentCount = document.querySelector('.fa-comment').nextElementSibling;
             commentCount.textContent = parseInt(commentCount.textContent) - 1;
+            
+            // Tampilkan pesan sukses
+            if (currentUser === commentUser) {
+                alert('✅ Komentar Anda berhasil dihapus!');
+            } else if (currentUser === postOwner) {
+                alert('✅ Komentar berhasil dihapus dari postingan Anda!');
+            } else {
+                alert('✅ Komentar berhasil dihapus!');
+            }
         } else {
-            if (status === 401) alert('Silakan login terlebih dahulu.');
-            else if (status === 419) alert('Sesi kadaluarsa. Silakan refresh halaman.');
-            else alert('Gagal menghapus komentar: ' + (data.message || 'Unknown error'));
+            // Jangan tampilkan notifikasi error ke pengguna
+            console.warn('Gagal menghapus komentar', { status, data });
         }
     })
     .catch(error => {
         console.error('Delete comment error:', error);
-        alert('Gagal menghapus komentar. ' + error.message);
+        // Jangan tampilkan notifikasi error ke pengguna
     });
 }
 

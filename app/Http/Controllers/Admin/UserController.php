@@ -37,7 +37,7 @@ class UserController extends Controller
             request()->session()->regenerateToken();
         }
 
-        return back()->with('success', 'User berhasil dibanned');
+        return redirect()->route('admin.users')->with('success', 'User berhasil dibanned');
     }
 
     public function unban(User $user)
@@ -49,7 +49,7 @@ class UserController extends Controller
             'ban_reason' => null
         ]);
 
-        return back()->with('success', 'User berhasil di-unban');
+        return redirect()->route('admin.users')->with('success', 'User berhasil di-unban');
     }
 
     public function destroy(User $user)
@@ -59,7 +59,7 @@ class UserController extends Controller
         }
 
         $user->delete();
-        return back()->with('success', 'User berhasil dihapus');
+        return redirect()->route('admin.users')->with('success', 'User berhasil dihapus');
     }
 
     public function makeAdmin(User $user)
@@ -67,19 +67,19 @@ class UserController extends Controller
         $user->removeRole('user');
         $user->assignRole('admin');
         
-        return back()->with('success', 'User berhasil dijadikan admin');
+        return redirect()->route('admin.users')->with('success', 'User berhasil dijadikan admin');
     }
 
     public function removeAdmin(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Tidak dapat menghapus role admin sendiri');
+            return back()->with('error', 'Tidak dapat menghapus role admin dari akun sendiri');
         }
 
         $user->removeRole('admin');
         $user->assignRole('user');
         
-        return back()->with('success', 'Role admin berhasil dihapus');
+        return redirect()->route('admin.users')->with('success', 'Role admin berhasil dihapus dari user');
     }
 }
 

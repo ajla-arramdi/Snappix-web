@@ -57,32 +57,21 @@ class AdminController extends Controller
 
     public function banPost(PostFoto $post)
     {
-        $post->update([
-            'is_banned' => true,
-            'banned_at' => now(),
-            'banned_by' => auth()->id(),
-            'ban_reason' => 'Dibanned oleh admin'
-        ]);
-
-        return back()->with('success', 'Postingan berhasil dibanned');
+        // Delete the post instead of just banning it
+        $post->delete();
+        return redirect()->route('admin.posts')->with('success', 'Postingan berhasil dihapus');
     }
 
     public function unbanPost(PostFoto $post)
     {
-        $post->update([
-            'is_banned' => false,
-            'banned_at' => null,
-            'banned_by' => null,
-            'ban_reason' => null
-        ]);
-
-        return back()->with('success', 'Postingan berhasil di-unban');
+        // This method is no longer needed since we delete posts instead of banning
+        return back()->with('error', 'Fitur unban tidak tersedia');
     }
 
     public function deletePost(PostFoto $post)
     {
         $post->delete();
-        return back()->with('success', 'Postingan berhasil dihapus');
+        return redirect()->route('admin.posts')->with('success', 'Postingan berhasil dihapus');
     }
 
     public function banComment(Comment $comment)
@@ -94,7 +83,7 @@ class AdminController extends Controller
             'ban_reason' => 'Dibanned oleh admin'
         ]);
 
-        return back()->with('success', 'Komentar berhasil dibanned');
+        return redirect()->route('admin.reports')->with('success', 'Komentar berhasil dibanned');
     }
 
     public function unbanComment(Comment $comment)
@@ -106,13 +95,13 @@ class AdminController extends Controller
             'ban_reason' => null
         ]);
 
-        return back()->with('success', 'Komentar berhasil di-unban');
+        return redirect()->route('admin.reports')->with('success', 'Komentar berhasil di-unban');
     }
 
     public function deleteComment(Comment $comment)
     {
         $comment->delete();
-        return back()->with('success', 'Komentar berhasil dihapus');
+        return redirect()->route('admin.reports')->with('success', 'Komentar berhasil dihapus');
     }
 
     public function reports()
@@ -146,17 +135,12 @@ class AdminController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        // Jika approve, ban post
+        // Jika approve, hapus post (delete instead of ban)
         if ($action === 'approve' && $report->postFoto) {
-            $report->postFoto->update([
-                'is_banned' => true,
-                'banned_at' => now(),
-                'banned_by' => auth()->id(),
-                'ban_reason' => 'Dilaporkan & disetujui admin',
-            ]);
+            $report->postFoto->delete();
         }
 
-        return back()->with('success', 'Laporan post berhasil diproses.');
+        return redirect()->route('admin.reports')->with('success', 'Laporan post berhasil diproses.');
     }
 
     public function reviewCommentReport($id, $action)
@@ -183,7 +167,7 @@ class AdminController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Laporan komentar berhasil diproses.');
+        return redirect()->route('admin.reports')->with('success', 'Laporan komentar berhasil diproses.');
     }
 
     public function reviewUserReport($id, $action)
@@ -198,6 +182,7 @@ class AdminController extends Controller
             'status' => $action === 'approve' ? 'approved' : 'rejected',
             'admin_id' => auth()->id(),
             'reviewed_at' => now(),
+            'admin_notes' => request('admin_notes')
         ]);
 
         // Jika approve, ban user
@@ -210,7 +195,7 @@ class AdminController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Laporan user berhasil diproses.');
+        return redirect()->route('admin.reports')->with('success', 'Laporan user berhasil diproses.');
     }
 
     private function getReportModel($type)

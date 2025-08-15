@@ -49,7 +49,18 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        $this->authorize('update', $comment);
+        try {
+            $this->authorize('update', $comment);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki izin untuk mengubah komentar ini.',
+                ], 403);
+            }
+            
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah komentar ini.');
+        }
 
         $request->validate([
             'isi_komentar' => 'required|string|max:1000',
@@ -75,7 +86,18 @@ class CommentController extends Controller
      */
     public function destroy(Request $request, Comment $comment)
     {
-        $this->authorize('delete', $comment);
+        try {
+            $this->authorize('delete', $comment);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki izin untuk menghapus komentar ini.',
+                ], 403);
+            }
+            
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus komentar ini.');
+        }
 
         $comment->delete();
 

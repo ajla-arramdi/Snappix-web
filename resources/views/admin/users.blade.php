@@ -156,12 +156,7 @@
                                     @endif
 
                                     <!-- View Detail -->
-                                    <a href="{{ route('admin.user-detail', $user) }}" 
-                                       style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center;"
-                                       onmouseover="this.style.background='#2563eb';"
-                                       onmouseout="this.style.background='#3b82f6';">
-                                        <i class="fas fa-eye" style="margin-right: 4px;"></i>Detail
-                                    </a>
+                                  
                                 </div>
                             @else
                                 <span style="color: #9ca3af; font-size: 12px; font-style: italic;">Current User</span>
