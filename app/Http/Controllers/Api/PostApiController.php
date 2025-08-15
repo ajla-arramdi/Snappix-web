@@ -11,8 +11,36 @@ class PostApiController extends Controller
 {
     public function index()
     {
-        $posts = PostFoto::with('user')->latest()->get();
-        return response()->json($posts);
+        $posts = PostFoto::with(['user', 'album'])->latest()->get();
+
+        $formattedPosts = $posts->map(function ($post) {
+            return [
+                'id' => $post->id,
+                'caption' => $post->caption,
+                'image' => $post->image ? url('storage/' . $post->image) : null,
+                'is_banned' => $post->is_banned,
+                'banned_at' => $post->banned_at,
+                'ban_reason' => $post->ban_reason,
+                'created_at' => $post->created_at,
+                'updated_at' => $post->updated_at,
+                'user' => [
+                    'id' => $post->user->id ?? null,
+                    'name' => $post->user->name ?? null,
+                    'email' => $post->user->email ?? null,
+                ],
+                'album' => $post->album ? [
+                    'id' => $post->album->id,
+                    'nama_album' => $post->album->nama_album,
+                    'deskripsi' => $post->album->deskripsi,
+                ] : null
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data post berhasil diambil',
+            'data' => $formattedPosts
+        ]);
     }
 
     public function store(Request $request)
@@ -42,11 +70,36 @@ class PostApiController extends Controller
 
         return response()->json($post, 201);
     }
-
     public function show(PostFoto $post)
     {
-        $post->load('user');
-        return response()->json($post);
+        $post->load(['user', 'album']);
+
+        $formattedPost = [
+            'id' => $post->id,
+            'caption' => $post->caption,
+            'image' => $post->image ? url('storage/' . $post->image) : null,
+            'is_banned' => $post->is_banned,
+            'banned_at' => $post->banned_at,
+            'ban_reason' => $post->ban_reason,
+            'created_at' => $post->created_at,
+            'updated_at' => $post->updated_at,
+            'user' => [
+                'id' => $post->user->id ?? null,
+                'name' => $post->user->name ?? null,
+                'email' => $post->user->email ?? null,
+            ],
+            'album' => $post->album ? [
+                'id' => $post->album->id,
+                'nama_album' => $post->album->nama_album,
+                'deskripsi' => $post->album->deskripsi,
+            ] : null
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data post berhasil diambil',
+            'data' => $formattedPost
+        ]);
     }
 
     public function update(Request $request, PostFoto $post)

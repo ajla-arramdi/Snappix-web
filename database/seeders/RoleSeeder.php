@@ -16,7 +16,7 @@ class RoleSeeder extends Seeder
     {
         // Buat roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $userRole = Role::firstOrCreate(['name' => 'user']); 
+        $userRole = Role::firstOrCreate(['name' => 'user']);
 
         // Buat admin user
         $admin = User::firstOrCreate(
@@ -39,4 +39,6 @@ class RoleSeeder extends Seeder
         $user->assignRole($userRole);
     }
 }
+
+
 

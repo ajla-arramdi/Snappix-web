@@ -67,3 +67,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('posts', PostApiController::class);
 });
+
+
