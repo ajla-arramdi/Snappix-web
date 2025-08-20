@@ -139,7 +139,80 @@
         <!-- Content Comments -->
         <div id="content-comments" class="tab-content" style="padding: 24px; display: none;">
             <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0 0 16px 0;">💬 Laporan Komentar</h3>
-            <p style="color: #64748b;">Fitur laporan komentar akan ditambahkan...</p>
+            @if($reportComments->count() > 0)
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e2e8f0;">Pelapor</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e2e8f0;">Komentar</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e2e8f0;">Alasan</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e2e8f0;">Status</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e2e8f0;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($reportComments as $report)
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 16px 12px;">
+                                    <div>
+                                        <div style="font-weight: 600; color: #1e293b;">{{ $report->user->name }}</div>
+                                        <div style="font-size: 12px; color: #64748b;">{{ $report->created_at->diffForHumans() }}</div>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 12px;">
+                                    <div style="font-weight: 500; color: #374151;">{{ Str::limit(optional($report->comment)->isi_komentar ?? 'Komentar dihapus', 60) }}</div>
+                                    <div style="font-size: 12px; color: #64748b;">oleh {{ optional(optional($report->comment)->user)->name ?? 'User dihapus' }}</div>
+                                </td>
+                                <td style="padding: 16px 12px;">
+                                    <div style="font-weight: 500; color: #dc2626;">{{ $report->alasan }}</div>
+                                    @if($report->deskripsi)
+                                        <div style="font-size: 12px; color: #64748b; margin-top: 4px;">{{ Str::limit($report->deskripsi, 60) }}</div>
+                                    @endif
+                                </td>
+                                <td style="padding: 16px 12px;">
+                                    @php $status = $report->status ?? 'pending'; @endphp
+                                    @if($status === 'pending')
+                                        <span style="background: #fbbf24; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">⏳ Pending</span>
+                                    @elseif($status === 'approved')
+                                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">✅ Disetujui</span>
+                                    @else
+                                        <span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">❌ Ditolak</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 16px 12px;">
+                                    @if(($report->status ?? 'pending') === 'pending')
+                                        <div style="display: flex; gap: 8px;">
+                                            <button onclick="openReviewModal('comment', {{ $report->id }}, 'approve')" 
+                                                    style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                                ✅ Setujui (Hapus)
+                                            </button>
+                                            <button onclick="openReviewModal('comment', {{ $report->id }}, 'reject')" 
+                                                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                                ❌ Tolak
+                                            </button>
+                                        </div>
+                                    @else
+                                        <span style="color: #64748b; font-size: 12px;">✅ Sudah direview</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($reportComments->hasPages())
+                    <div style="margin-top: 24px;">
+                        {{ $reportComments->links() }}
+                    </div>
+                @endif
+            @else
+                <div style="text-align: center; padding: 48px; color: #64748b;">
+                    <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                    <p style="margin: 0; font-size: 16px;">Tidak ada laporan komentar</p>
+                </div>
+            @endif
         </div>
 
         <!-- Content Users -->

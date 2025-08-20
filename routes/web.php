@@ -123,5 +123,10 @@ Route::middleware(['auth', 'check.banned'])->group(function () {
     // User report & comment report
     Route::post('/report/post/{postFoto}', [UserReportController::class, 'reportPost'])->name('report.post');
     Route::post('/report/user/{user}', [UserReportController::class, 'reportUser'])->name('report.user');
-    Route::post('/comments/{comment}/report', [UserReportCommentController::class, 'store'])->name('comments.report');
+    Route::post('/comments/{comment}/report', [UserReportController::class, 'reportComment'])->name('comments.report');
 });
+
+use App\Http\Controllers\GoogleController;
+
+Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'callback']);

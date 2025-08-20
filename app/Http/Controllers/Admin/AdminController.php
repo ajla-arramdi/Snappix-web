@@ -157,14 +157,9 @@ class AdminController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        // Jika approve, ban comment
+        // Jika approve, hapus komentar (delete langsung sesuai permintaan)
         if ($action === 'approve' && $report->comment) {
-            $report->comment->update([
-                'is_banned' => true,
-                'banned_at' => now(),
-                'banned_by' => auth()->id(),
-                'ban_reason' => 'Dilaporkan & disetujui admin',
-            ]);
+            $report->comment->delete();
         }
 
         return redirect()->route('admin.reports')->with('success', 'Laporan komentar berhasil diproses.');

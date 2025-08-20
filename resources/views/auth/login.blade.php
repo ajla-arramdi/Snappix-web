@@ -33,6 +33,11 @@
                 </div>
                 <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Login</button>
             </form>
+
+            <a href="{{ route('google.login') }}" class="btn btn-danger">
+    <i class="fab fa-google"></i> Login dengan Google
+</a>
+
             <p class="mt-4 text-center">
                 <a href="{{ route('register') }}" class="text-blue-500">Don't have an account? Register</a>
             </p>

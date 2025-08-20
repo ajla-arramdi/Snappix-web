@@ -117,15 +117,28 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="font-semibold text-sm">{{ $comment->user->name }}</span>
                                     <span class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
-                                    @if(auth()->id() === $comment->user_id || auth()->id() === $post->user_id)
-                                        <button onclick="deleteComment({{ $comment->id }})" 
-                                                class="text-red-500 hover:text-red-700 text-xs transition-colors"
-                                                title="{{ auth()->id() === $comment->user_id ? 'Hapus komentar saya' : 'Hapus komentar dari postingan saya' }}">
-                                            <i class="fas fa-trash"></i>
+                                    <div class="relative ml-auto">
+                                        <button onclick="toggleCommentMenu({{ $comment->id }})" class="text-gray-600 hover:text-gray-800 p-1 rounded hover:bg-gray-100 text-sm font-bold" title="Menu">
+                                            ⋯
                                         </button>
-                                    @endif
+                                        <div id="comment-menu-{{ $comment->id }}" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999]">
+                                            @if(auth()->id() === $comment->user_id || auth()->id() === $post->user_id)
+                                                <button onclick="deleteComment({{ $comment->id }})" class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded-t-lg">
+                                                    🗑️ <span class="ml-1">Hapus Komentar</span>
+                                                </button>
+                                            @endif
+                                            @if(auth()->id() !== $comment->user_id)
+                                                <button onclick="openReportModal('comment', {{ $comment->id }})" class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 {{ (auth()->id() === $comment->user_id || auth()->id() === $post->user_id) ? 'border-t border-gray-100' : '' }}">
+                                                    🚩 <span class="ml-1">Laporkan Komentar</span>
+                                                </button>
+                                                <button onclick="openReportModal('user', {{ $comment->user_id }})" class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded-b-lg">
+                                                    👤 <span class="ml-1">Laporkan User</span>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-gray-900 mt-1">{{ $comment->isi_komentar }}</p>
+                                <p class="text-sm text-gray-900 mt-1 @if(auth()->id() !== $comment->user_id) cursor-pointer @endif" @if(auth()->id() !== $comment->user_id) onclick="toggleCommentMenu({{ $comment->id }})" @endif>{{ $comment->isi_komentar }}</p>
                             </div>
                         </div>
                         @empty
@@ -220,6 +233,18 @@ function toggleMenu(postId) {
     }
 }
 
+// Toggle comment menu
+function toggleCommentMenu(commentId) {
+    const menu = document.getElementById(`comment-menu-${commentId}`);
+    if (menu) {
+        // Close other comment menus
+        document.querySelectorAll('[id^="comment-menu-"]').forEach(m => {
+            if (m.id !== `comment-menu-${commentId}`) m.classList.add('hidden');
+        });
+        menu.classList.toggle('hidden');
+    }
+}
+
 // Report functionality
 function openReportModal(type, id) {
     console.log('Opening report modal:', type, id);
@@ -237,7 +262,11 @@ function openReportModal(type, id) {
     
     if (typeInput) typeInput.value = type;
     if (idInput) idInput.value = id;
-    if (title) title.textContent = type === 'post' ? 'Laporkan Post' : 'Laporkan User';
+    if (title) {
+        if (type === 'post') title.textContent = 'Laporkan Post';
+        else if (type === 'user') title.textContent = 'Laporkan User';
+        else if (type === 'comment') title.textContent = 'Laporkan Komentar';
+    }
     
     modal.classList.remove('hidden');
     console.log('Modal opened');
@@ -274,6 +303,8 @@ function submitReport(event) {
         url = `/report/post/${id}`;
     } else if (type === 'user') {
         url = `/report/user/${id}`;
+    } else if (type === 'comment') {
+        url = `/comments/${id}/report`;
     }
     
     console.log('Sending to URL:', url);
