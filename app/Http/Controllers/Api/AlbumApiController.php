@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Album;
+use App\Models\PostFoto;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class AlbumApiController extends Controller
@@ -33,9 +34,38 @@ class AlbumApiController extends Controller
 
     public function show($id)
     {
-        $album = Album::where('user_id', Auth::id())->findOrFail($id);
+        $album = Album::findOrFail($id);
         return response()->json($album);
     }
+
+    public function getAlbumsByUserId($userId)
+    {
+        $albums = Album::where('user_id', $userId)
+            ->with(['user', 'postFotos'])
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($albums);
+    }
+
+    public function getPostsByAlbum($albumId)
+    {
+        $album = Album::findOrFail($albumId);
+
+        // Opsional: Cek apakah album publik atau milik user sendiri
+        // if ($album->user_id !== Auth::id()) {
+        //     // Tambahkan logika privasi di sini
+        // }
+
+        $posts = PostFoto::where('album_id', $albumId)
+            ->with(['user', 'album'])
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($posts);
+    }
+
+
 
     public function destroy($id)
     {
@@ -44,4 +74,5 @@ class AlbumApiController extends Controller
 
         return response()->json(['message' => 'Album deleted successfully']);
     }
+
 }

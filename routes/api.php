@@ -27,6 +27,7 @@ Route::post('/login', [AuthApiController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthApiController::class, 'logout']);
     Route::get('/profile', [AuthApiController::class, 'profile']);
+    Route::get('/albums/{id}/posts', [AlbumApiController::class, 'getPostsByAlbum']);
 
     // User API routes
     Route::prefix('user')->group(function () {
@@ -41,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/username/{username}', [UserApiController::class, 'getUserByUsername']);
         Route::get('/stats', [UserApiController::class, 'getStats']);
         Route::delete('/delete-account', [UserApiController::class, 'deleteAccount']);
+        Route::get('/{userId}/albums', [AlbumApiController::class, 'getAlbumsByUserId']);
     });
 
     // Social API routes

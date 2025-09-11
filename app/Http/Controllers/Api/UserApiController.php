@@ -30,7 +30,7 @@ class UserApiController extends Controller
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
-        
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => [
@@ -99,7 +99,7 @@ class UserApiController extends Controller
     {
         $user = auth()->user();
         $posts = $user->postFotos()->with(['user', 'album'])->latest()->paginate(10);
-        
+
         return response()->json($posts);
     }
 
@@ -110,7 +110,7 @@ class UserApiController extends Controller
     {
         $user = auth()->user();
         $albums = $user->albums()->with(['user', 'postFotos'])->latest()->paginate(10);
-        
+
         return response()->json($albums);
     }
 
@@ -121,7 +121,7 @@ class UserApiController extends Controller
     {
         $user = auth()->user();
         $likedPosts = $user->likeFotos()->with(['postFoto.user', 'postFoto.album'])->latest()->paginate(10);
-        
+
         return response()->json($likedPosts);
     }
 
@@ -132,7 +132,7 @@ class UserApiController extends Controller
     {
         $user = auth()->user();
         $comments = $user->comments()->with(['postFoto', 'user'])->latest()->paginate(10);
-        
+
         return response()->json($comments);
     }
 
@@ -171,7 +171,7 @@ class UserApiController extends Controller
     public function getStats()
     {
         $user = auth()->user();
-        
+
         $stats = [
             'total_posts' => $user->postFotos()->count(),
             'total_albums' => $user->albums()->count(),
@@ -181,6 +181,7 @@ class UserApiController extends Controller
 
         return response()->json($stats);
     }
+
 
     /**
      * Delete account
