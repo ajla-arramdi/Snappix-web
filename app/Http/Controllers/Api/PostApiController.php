@@ -27,6 +27,7 @@ class PostApiController extends Controller
                     'id' => $post->user->id ?? null,
                     'name' => $post->user->name ?? null,
                     'email' => $post->user->email ?? null,
+                    'avatar' => $post->user->avatar ? url('storage/' . $post->user->avatar) : null,
                 ],
                 'album' => $post->album ? [
                     'id' => $post->album->id,
@@ -87,6 +88,7 @@ class PostApiController extends Controller
                 'id' => $post->user->id ?? null,
                 'name' => $post->user->name ?? null,
                 'email' => $post->user->email ?? null,
+                'avatar' => $post->user->avatar ? url('storage/' . $post->user->avatar) : null,
             ],
             'album' => $post->album ? [
                 'id' => $post->album->id,
