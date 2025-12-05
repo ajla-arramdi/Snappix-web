@@ -126,6 +126,9 @@ class AdminController extends Controller
         $report = ReportPost::findOrFail($id);
         
         if (!in_array($action, ['approve', 'reject'])) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Aksi tidak valid'], 400);
+            }
             return back()->with('error', 'Aksi tidak valid.');
         }
 
@@ -138,9 +141,16 @@ class AdminController extends Controller
         // Jika approve, hapus post (delete instead of ban)
         if ($action === 'approve' && $report->postFoto) {
             $report->postFoto->delete();
+            $message = 'Laporan post berhasil disetujui dan postingan telah dihapus!';
+        } else {
+            $message = 'Laporan post berhasil ditolak!';
         }
 
-        return redirect()->route('admin.reports')->with('success', 'Laporan post berhasil diproses.');
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.reports')->with('success', $message);
     }
 
     public function reviewCommentReport($id, $action)
@@ -148,6 +158,9 @@ class AdminController extends Controller
         $report = ReportComment::findOrFail($id);
         
         if (!in_array($action, ['approve', 'reject'])) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Aksi tidak valid'], 400);
+            }
             return back()->with('error', 'Aksi tidak valid.');
         }
 
@@ -160,9 +173,16 @@ class AdminController extends Controller
         // Jika approve, hapus komentar (delete langsung sesuai permintaan)
         if ($action === 'approve' && $report->comment) {
             $report->comment->delete();
+            $message = 'Laporan komentar berhasil disetujui dan komentar telah dihapus!';
+        } else {
+            $message = 'Laporan komentar berhasil ditolak!';
         }
 
-        return redirect()->route('admin.reports')->with('success', 'Laporan komentar berhasil diproses.');
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.reports')->with('success', $message);
     }
 
     public function reviewUserReport($id, $action)
@@ -170,6 +190,9 @@ class AdminController extends Controller
         $report = ReportUser::findOrFail($id);
         
         if (!in_array($action, ['approve', 'reject'])) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Aksi tidak valid'], 400);
+            }
             return back()->with('error', 'Aksi tidak valid.');
         }
 
@@ -188,9 +211,16 @@ class AdminController extends Controller
                 'banned_by' => auth()->id(),
                 'ban_reason' => 'Dilaporkan & disetujui admin',
             ]);
+            $message = 'Laporan user berhasil disetujui dan user telah di-ban!';
+        } else {
+            $message = 'Laporan user berhasil ditolak!';
         }
 
-        return redirect()->route('admin.reports')->with('success', 'Laporan user berhasil diproses.');
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.reports')->with('success', $message);
     }
 
     private function getReportModel($type)

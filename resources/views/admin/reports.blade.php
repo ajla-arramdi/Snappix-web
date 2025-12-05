@@ -5,6 +5,27 @@
 
 @section('content')
 <div style="padding: 32px;">
+    <!-- Flash Messages -->
+    @if(session('success'))
+    <div id="flash-message" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+        <div style="display: flex; align-items: center;">
+            <i class="fas fa-check-circle" style="font-size: 20px; margin-right: 12px;"></i>
+            <span style="font-weight: 600;">{{ session('success') }}</span>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div id="flash-message" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+        <div style="display: flex; align-items: center;">
+            <i class="fas fa-exclamation-circle" style="font-size: 20px; margin-right: 12px;"></i>
+            <span style="font-weight: 600;">{{ session('error') }}</span>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
+    </div>
+    @endif
+
     <!-- Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px;">
         <!-- Pending -->
@@ -75,7 +96,7 @@
                         </thead>
                         <tbody>
                             @foreach($reportPosts as $report)
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <tr id="report-post-{{ $report->id }}" style="border-bottom: 1px solid #f1f5f9;">
                                 <td style="padding: 16px 12px;">
                                     <div>
                                         <div style="font-weight: 600; color: #1e293b;">{{ $report->user->name }}</div>
@@ -153,7 +174,7 @@
                         </thead>
                         <tbody>
                             @foreach($reportComments as $report)
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <tr id="report-comment-{{ $report->id }}" style="border-bottom: 1px solid #f1f5f9;">
                                 <td style="padding: 16px 12px;">
                                     <div>
                                         <div style="font-weight: 600; color: #1e293b;">{{ $report->user->name }}</div>
@@ -232,7 +253,7 @@
                         </thead>
                         <tbody>
                             @foreach($reportUsers as $report)
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <tr id="report-user-{{ $report->id }}" style="border-bottom: 1px solid #f1f5f9;">
                                 <td style="padding: 16px 12px;">
                                     <div>
                                         <div style="font-weight: 600; color: #1e293b;">{{ $report->reporter->name }}</div>
@@ -324,15 +345,18 @@ function openReviewModal(type, id, action) {
     const confirmText = `Apakah Anda yakin ingin ${actionText} laporan ini?`;
     
     if (confirm(confirmText)) {
-        // Show loading state
-        const buttons = document.querySelectorAll(`button[onclick*="${id}"]`);
+        // Get the row element
+        const row = document.getElementById(`report-${type}-${id}`);
+        
+        // Show loading state on buttons
+        const buttons = row.querySelectorAll('button');
         buttons.forEach(btn => {
             btn.disabled = true;
             btn.style.opacity = '0.5';
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         });
 
-        // Send request - perbaiki URL
+        // Send request
         fetch(`/admin/reports/${type}/${id}/${action}`, {
             method: 'POST',
             headers: {
@@ -347,10 +371,29 @@ function openReviewModal(type, id, action) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Show success notification
                 showNotification(data.message || `Laporan berhasil ${action === 'approve' ? 'disetujui' : 'ditolak'}!`, 'success');
+                
+                // Fade out and remove the row
+                row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                
                 setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                    row.remove();
+                    
+                    // Check if table is now empty
+                    const activeTab = document.querySelector('.tab-content[style*="display: block"]');
+                    const table = activeTab.querySelector('tbody');
+                    if (table && table.children.length === 0) {
+                        activeTab.querySelector('table').parentElement.innerHTML = `
+                            <div style="text-align: center; padding: 48px; color: #64748b;">
+                                <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                                <p style="margin: 0; font-size: 16px;">Semua laporan telah diproses!</p>
+                            </div>
+                        `;
+                    }
+                }, 500);
             } else {
                 throw new Error(data.message || 'Terjadi kesalahan');
             }
@@ -359,12 +402,12 @@ function openReviewModal(type, id, action) {
             console.error('Error:', error);
             showNotification(error.message || 'Terjadi kesalahan saat memproses laporan', 'error');
             
-            // Reset buttons
-            buttons.forEach(btn => {
+            // Reset buttons on error
+            buttons.forEach((btn, index) => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
-                if (btn.onclick.toString().includes('approve')) {
-                    btn.innerHTML = '✅ Setujui';
+                if (index === 0) {
+                    btn.innerHTML = action === 'approve' ? '✅ Setujui' : '✅ Setujui (Hapus)';
                 } else {
                     btn.innerHTML = '❌ Tolak';
                 }
@@ -418,6 +461,19 @@ function showNotification(message, type) {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     showTab('posts');
+    
+    // Auto-hide flash messages after 5 seconds
+    const flashMessage = document.getElementById('flash-message');
+    if (flashMessage) {
+        setTimeout(() => {
+            flashMessage.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            flashMessage.style.opacity = '0';
+            flashMessage.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                flashMessage.remove();
+            }, 500);
+        }, 5000);
+    }
 });
 </script>
 @endsection

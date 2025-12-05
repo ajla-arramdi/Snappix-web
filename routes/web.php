@@ -129,4 +129,4 @@ Route::middleware(['auth', 'check.banned'])->group(function () {
 use App\Http\Controllers\GoogleController;
 
 Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'callback']);
+Route::get('google/callback', [GoogleController::class, 'callback']);
